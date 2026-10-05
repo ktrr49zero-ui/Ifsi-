@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>IFSI+ — Révisions infirmières</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#718096;--primary:#3264e8;--soft:#e9efff;--green:#18a673;--red:#e05252}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
+.app{max-width:480px;margin:auto;min-height:100vh;padding-bottom:84px}
+header{padding:28px 20px 16px;background:linear-gradient(145deg,#3264e8,#6d8df3);color:white;border-radius:0 0 28px 28px}
+.brand{font-weight:800;font-size:26px}.sub{opacity:.86;margin-top:5px}.goal{margin-top:20px;background:#ffffff1c;padding:16px;border-radius:18px}.goal b{font-size:24px}
+main{padding:18px}.section{font-size:18px;font-weight:800;margin:18px 0 12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{background:var(--card);border-radius:18px;padding:17px;box-shadow:0 5px 18px #20345a10}.icon{font-size:27px}.card b{display:block;margin-top:8px}.muted{color:var(--muted);font-size:13px;margin-top:5px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{text-align:center}.stat strong{display:block;font-size:21px}
+.progress{height:8px;background:#edf0f5;border-radius:10px;margin-top:9px;overflow:hidden}.bar{height:100%;background:var(--primary);border-radius:10px}
+button{border:0;border-radius:14px;padding:13px 16px;font-weight:750;cursor:pointer}.primary{background:var(--primary);color:white;width:100%;margin-top:14px}.ad{margin:16px 0;background:#fff;border:1px dashed #c8cfdd;color:#8a93a5;border-radius:14px;padding:10px;text-align:center;font-size:11px}
+.screen{display:none}.screen.active{display:block}.top{display:flex;align-items:center;gap:10px;padding:18px 0}.back{background:#e9edf5}.choice{display:block;width:100%;text-align:left;background:white;margin:10px 0}.choice.correct{background:#dcf7ec;border:2px solid var(--green)}.choice.wrong{background:#fde4e4;border:2px solid var(--red)}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);background:#fff;border-top:1px solid #e9edf3;display:flex;justify-content:space-around;padding:10px 4px calc(10px + env(safe-area-inset-bottom));z-index:5}nav button{background:none;color:#667085;font-size:12px;padding:7px}.activeNav{color:var(--primary)!important}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<div class="brand">IFSI+</div><div class="sub">Révise. Comprends. Réussis.</div>
+<div class="goal"><div>🎯 Objectif du jour</div><b>20 min</b><div style="opacity:.85">Ta série 🔥 6 jours</div></div>
+</header>
+
+<main>
+<section id="home" class="screen active">
+<div class="section">Continuer mes révisions</div>
+<div class="card"><b>🧠 Session personnalisée</b><div class="muted">10 questions adaptées à tes erreurs récentes.</div><button class="primary" onclick="show('quiz')">Commencer</button></div>
+<div class="section">Réviser par activité</div>
+<div class="grid">
+<div class="card" onclick="show('quiz')"><span class="icon">🧠</span><b>QCM</b><span class="muted">Teste tes connaissances</span></div>
+<div class="card" onclick="show('case')"><span class="icon">🏥</span><b>Cas cliniques</b><span class="muted">Raisonnement infirmier</span></div>
+<div class="card" onclick="show('cards')"><span class="icon">📚</span><b>Fiches</b><span class="muted">Révise l'essentiel</span></div>
+<div class="card" onclick="show('meds')"><span class="icon">💊</span><b>Médicaments</b><span class="muted">Indications & surveillances</span></div>
+</div>
+<div class="ad">PUBLICITÉ — emplacement prévu</div>
+<div class="section">Ma progression</div>
+<div class="card"><div class="stats"><div class="stat"><strong>127</strong><span class="muted">questions</span></div><div class="stat"><strong>78%</strong><span class="muted">réussite</span></div><div class="stat"><strong>+9%</strong><span class="muted">cette semaine</span></div></div></div>
+</section>
+
+<section id="quiz" class="screen">
+<div class="top"><button class="back" onclick="show('home')">←</button><h2>QCM — UE 2.5</h2></div>
+<div class="card"><div class="muted">Question 1 / 5</div><h3>Quel signe est particulièrement évocateur d'un œdème aigu du poumon ?</h3>
+<button class="choice" onclick="answer(this,false)">A. Bradycardie isolée</button>
+<button class="choice" onclick="answer(this,true)">B. Dyspnée aiguë avec crépitants pulmonaires</button>
+<button class="choice" onclick="answer(this,false)">C. Douleur abdominale isolée</button>
+<button class="choice" onclick="answer(this,false)">D. Prurit généralisé</button>
+<div id="explain" class="muted" style="display:none;margin-top:14px"><b>Explication :</b> l'OAP se manifeste notamment par une dyspnée aiguë et des crépitants pulmonaires liés à l'accumulation de liquide dans les poumons.</div>
+</div>
+</section>
+
+<section id="case" class="screen">
+<div class="top"><button class="back" onclick="show('home')">←</button><h2>Cas clinique</h2></div>
+<div class="card"><div class="muted">Niveau 2e année</div><h3>M. D., 74 ans, présente une dyspnée importante, une SpO₂ à 88 % et une agitation récente.</h3><p>Quelle est ta priorité immédiate ?</p>
+<button class="choice" onclick="caseAnswer(this,true)">Évaluer rapidement l'état respiratoire et alerter selon la situation.</button>
+<button class="choice" onclick="caseAnswer(this,false)">Lui proposer immédiatement un repas.</button>
+<button class="choice" onclick="caseAnswer(this,false)">Attendre la prochaine tournée.</button>
+<div id="caseExplain" class="muted" style="display:none;margin-top:14px"><b>Raisonnement :</b> la désaturation et la dyspnée imposent une évaluation prioritaire de la fonction respiratoire et une réaction adaptée à la gravité.</div>
+</div>
+</section>
+
+<section id="cards" class="screen">
+<div class="top"><button class="back" onclick="show('home')">←</button><h2>Fiches</h2></div>
+<div class="card"><b>🫁 OAP — L'essentiel</b><p class="muted">Signes : dyspnée aiguë, orthopnée, crépitants, désaturation. Surveillance : respiration, SpO₂, conscience, constantes et évolution clinique. La prise en charge dépend de la situation et des prescriptions/protocoles.</p></div>
+<div class="card" style="margin-top:12px"><b>❤️ Insuffisance cardiaque</b><p class="muted">Retenir : signes de congestion, dyspnée, œdèmes, prise de poids rapide selon le contexte. Surveillance clinique et paramètres prescrits.</p></div>
+</section>
+
+<section id="meds" class="screen">
+<div class="top"><button class="back" onclick="show('home')">←</button><h2>Médicaments</h2></div>
+<div class="card"><b>💊 Furosémide</b><p class="muted">Diurétique de l'anse. À connaître : indication selon prescription, surveillance de la diurèse, de l'état d'hydratation et des paramètres biologiques prescrits.</p></div>
+<div class="card" style="margin-top:12px"><b>💊 Paracétamol</b><p class="muted">Antalgique/antipyrétique. Toujours vérifier la dose, l'intervalle entre prises, les contre-indications et les prescriptions en vigueur.</p></div>
+</section>
+
+<section id="progress" class="screen">
+<div class="top"><h2>📊 Ma progression</h2></div>
+<div class="card"><b>UE 2.5</b><div class="progress"><div class="bar" style="width:78%"></div></div><div class="muted">78 % de réussite</div></div>
+<div class="card" style="margin-top:12px"><b>UE 2.8</b><div class="progress"><div class="bar" style="width:64%"></div></div><div class="muted">64 % de réussite</div></div>
+<div class="card" style="margin-top:12px"><b>UE 3.1</b><div class="progress"><div class="bar" style="width:41%"></div></div><div class="muted">41 % — à travailler en priorité 🔴</div></div>
+</section>
+</main>
+<nav><button id="nHome" class="activeNav" onclick="show('home')">🏠<br>Accueil</button><button onclick="show('quiz')">🧠<br>QCM</button><button onclick="show('case')">🏥<br>Cas</button><button onclick="show('cards')">📚<br>Fiches</button><button onclick="show('progress')">📊<br>Suivi</button></nav>
+</div>
+<script>
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);document.querySelectorAll('nav button').forEach(x=>x.classList.remove('activeNav'));if(id==='home')document.getElementById('nHome').classList.add('activeNav')}
+function answer(btn,ok){document.querySelectorAll('#quiz .choice').forEach(x=>x.disabled=true);btn.classList.add(ok?'correct':'wrong');document.getElementById('explain').style.display='block'}
+function caseAnswer(btn,ok){document.querySelectorAll('#case .choice').forEach(x=>x.disabled=true);btn.classList.add(ok?'correct':'wrong');document.getElementById('caseExplain').style.display='block'}
+</script>
+</body>
+</html>
