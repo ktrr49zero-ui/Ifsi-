@@ -1,0 +1,1025 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080a0f"><title>IFSI+ — Révision IFSI</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+ --bg:#f5f7fb;--surface:#fff;--surface2:#f8fafc;--line:#e7ebf2;
+ --text:#101828;--muted:#667085;--primary:#2563eb;--primaryDark:#1d4ed8;
+ --indigo:#4f46e5;--green:#12b76a;--red:#f04438;--gold:#f5b700;
+ --shadow:0 12px 32px rgba(16,24,40,.055);--shadow2:0 20px 55px rgba(16,24,40,.10);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",sans-serif}
+body{min-height:100vh}
+button,input,select{font:inherit}
+button{color:inherit;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.app{max-width:860px;margin:auto;min-height:100vh;padding-bottom:96px}
+header{padding:13px 18px;position:sticky;top:0;z-index:50;background:rgba(245,247,251,.88);backdrop-filter:blur(22px);border-bottom:1px solid rgba(231,235,242,.85)}
+.brand{display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:28px;font-weight:950;letter-spacing:-1.5px}.logo span{color:var(--primary)}
+.userpill{font-size:12px;font-weight:800;color:#344054;background:#fff;border:1px solid var(--line);padding:9px 12px;border-radius:999px;box-shadow:0 4px 14px rgba(16,24,40,.04)}
+main{padding:18px}.screen{display:none}.screen.active{display:block}
+h2{margin:0 0 8px;letter-spacing:-.6px}.sub{color:var(--muted);font-size:13px;line-height:1.55}
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#1d4ed8,#4338ca);color:#fff;border-radius:28px;padding:24px;margin-bottom:16px;box-shadow:0 18px 38px rgba(37,99,235,.20)}
+.hero:before{content:"";position:absolute;width:230px;height:230px;border-radius:50%;right:-90px;top:-105px;background:rgba(255,255,255,.09)}
+.hero:after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;right:55px;bottom:-80px;background:rgba(255,255,255,.07)}
+.hero>*{position:relative;z-index:1}.eyebrow{color:#dbeafe;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1.3px}
+.hero h2{font-size:27px;line-height:1.1;margin:8px 0}.hero p{color:#e0e7ff;max-width:650px}
+.btn{background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;padding:13px 17px;border-radius:14px;font-weight:850;box-shadow:0 8px 18px rgba(37,99,235,.18);transition:.16s transform,.16s opacity}
+.btn:active{transform:scale(.985)}.btn.secondary{background:#fff;color:#344054;border:1px solid var(--line);box-shadow:none}.btn.full{width:100%}
+.card,.qcard,.authbox{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}.action{text-align:left;min-height:120px;width:100%;transition:.18s transform,.18s box-shadow}.action:active{transform:scale(.985)}
+.icon{width:45px;height:45px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:#eff6ff;font-size:22px}.action h3{margin:10px 0 4px;font-size:15px}.action p{margin:0;color:var(--muted);font-size:12px;line-height:1.4}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.stat{text-align:left;background:#fff;border:1px solid var(--line);border-radius:17px;padding:14px;box-shadow:0 5px 16px rgba(16,24,40,.035)}.stat strong{display:block;font-size:23px;letter-spacing:-.6px}.stat span{color:var(--muted);font-size:10px;font-weight:700}
+.sectionTitle{display:flex;align-items:center;justify-content:space-between;margin:23px 0 10px}.sectionTitle h2{font-size:18px}
+.quickRow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.quick{display:flex;align-items:center;gap:11px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:17px;padding:13px}.quick .qi{width:38px;height:38px;border-radius:12px;background:#eef4ff;display:grid;place-items:center;font-size:19px}.quick b{font-size:13px}.quick small{display:block;color:var(--muted);margin-top:2px;font-size:10px}
+.progressBox{background:#fff;border:1px solid var(--line);border-radius:19px;padding:15px;box-shadow:var(--shadow)}.progressLine{height:8px;background:#edf0f5;border-radius:99px;overflow:hidden}.progressLine span{display:block;height:100%;width:42%;background:linear-gradient(90deg,#2563eb,#6366f1);border-radius:99px}
+.filters{display:flex;gap:8px;overflow:auto;margin:13px 0;padding-bottom:2px}.chip{white-space:nowrap;background:#fff;border:1px solid var(--line);padding:8px 12px;border-radius:999px;color:var(--muted);font-size:12px;font-weight:750}.chip.active{background:#eaf2ff;color:#1d4ed8;border-color:#bfdbfe}
+.meta{color:var(--primary);font-size:11px;font-weight:900;text-transform:uppercase}.question{font-size:19px;line-height:1.45;margin:12px 0 18px;font-weight:750}.answers{display:grid;gap:10px}.answer{background:var(--surface2);border:1px solid var(--line);padding:15px;border-radius:15px;text-align:left;width:100%;line-height:1.42;transition:.15s transform,.15s border,.15s background}.answer:not(:disabled):active{transform:scale(.99)}.answer.correct{border-color:#86efac;background:#ecfdf3;color:#087443}.answer.wrong{border-color:#fca5a5;background:#fff1f2;color:#b42318}.answer:disabled{cursor:default}
+.explain{display:none;margin-top:14px;padding:16px;border-radius:16px;background:#f8fafc;border:1px solid var(--line);color:#475467;font-size:13px;line-height:1.55}.explain.show{display:block}
+.list{display:grid;gap:10px}.listItem{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;box-shadow:0 6px 18px rgba(16,24,40,.035)}.listItem small{color:var(--muted);line-height:1.5}
+input,select{width:100%;background:#fff;border:1px solid #d8dee8;border-radius:13px;color:var(--text);padding:13px;outline:none;margin:6px 0 11px}input:focus,select:focus{border-color:#84aef8;box-shadow:0 0 0 3px #eff6ff}.formlabel{font-size:12px;color:#475467;font-weight:700}
+.error{color:#b42318;font-size:12px;margin:8px 0}.ok{color:#087443;font-size:12px;margin:8px 0}.ad{margin:16px 0;padding:10px;text-align:center;border:1px dashed #cfd6e2;border-radius:12px;color:#98a2b3;font-size:10px;background:#fafbfc}
+.rank{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);padding:13px;border-radius:16px}.rank b:first-child{width:28px;text-align:center}.rank .rname{flex:1}.rank .rxp{font-weight:900}.me{border-color:#93b4ff;background:#eff6ff}.leaderAvatar{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#f2f4f7;border:1px solid #d8dee8;flex:0 0 44px}
+.avatar{width:94px;height:94px;border-radius:50%;object-fit:cover;border:3px solid #dbeafe;background:#f2f4f7}.profileHead{display:flex;align-items:center;gap:16px}.badgeGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.badgeCard{background:#fff;border:1px solid var(--line);border-radius:17px;padding:14px;text-align:center;box-shadow:0 6px 18px rgba(16,24,40,.035)}.badgeIcon{font-size:30px}.badgeCard small{display:block;color:var(--muted);margin-top:4px}
+.ficheGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.ficheCat{text-align:left;background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.ficheCat .ue{color:var(--primary);font-weight:900;font-size:12px}.ficheCat h3{margin:7px 0 4px}.ficheCat p{margin:0;color:var(--muted);font-size:12px;line-height:1.4}
+.caseGrid{display:grid;gap:12px}.caseCard{background:#fff;border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow)}.caseTag{display:inline-block;padding:5px 8px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:800}.courseBlock{margin-top:13px;padding:14px;border-radius:14px;background:#f8fafc;border:1px solid var(--line)}.courseBlock h4{margin:0 0 7px;font-size:14px}.courseBlock p,.courseBlock li{color:#475467;font-size:13px;line-height:1.55}.courseBlock ul{margin:7px 0 0 18px;padding:0}.difficulty{display:inline-block;padding:4px 7px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:10px;margin-left:6px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.94);backdrop-filter:blur(22px);border-top:1px solid var(--line);padding:8px max(12px,calc((100vw - 860px)/2));display:grid;grid-template-columns:repeat(6,1fr);box-shadow:0 -8px 24px rgba(16,24,40,.06)}nav button{background:none;color:#98a2b3;font-size:10px;padding:6px;font-weight:700}nav button.active{color:var(--primary)}nav .ni{font-size:19px;display:block;margin-bottom:3px}
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#101828;color:#fff;padding:11px 15px;border-radius:999px;font-size:12px;font-weight:800;display:none;z-index:80;box-shadow:0 10px 25px rgba(16,24,40,.18)}
+#auth{min-height:calc(100vh - 80px);display:none!important;align-items:center;justify-content:center;padding:8px 0 30px}#auth.active{display:flex!important}#auth:before{content:"";position:fixed;z-index:-1;left:-100px;top:70px;width:320px;height:320px;border-radius:50%;background:#dbeafe;filter:blur(5px);opacity:.8}#auth:after{content:"";position:fixed;z-index:-1;right:-130px;bottom:20px;width:350px;height:350px;border-radius:50%;background:#e0e7ff;filter:blur(5px);opacity:.7}
+#auth .authbox{width:100%;max-width:490px;padding:29px 23px;border-radius:30px;box-shadow:var(--shadow2);position:relative;overflow:hidden}#auth .authbox:before{content:"IFSI+";display:flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:20px;margin-bottom:18px;background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;font-size:17px;font-weight:950;box-shadow:0 12px 25px rgba(37,99,235,.22)}#auth .eyebrow{color:var(--primary)}#auth h2{font-size:26px;line-height:1.12}#auth .sub{margin-bottom:20px}#auth .btn{margin-top:3px}#auth .btn.secondary{background:#f8fafc}
+@media(max-width:620px){.statgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:430px){main{padding:15px}header{padding:13px 15px}.hero{padding:20px;border-radius:23px}.hero h2{font-size:23px}.grid{gap:9px}.card,.qcard{padding:15px}.action{min-height:112px}.icon{width:40px;height:40px}.question{font-size:17px}.quickRow{gap:8px}}
+@media(min-width:700px){main{padding:28px}.app{padding-bottom:20px}nav{position:sticky;top:74px;margin:0 auto;max-width:860px;border:1px solid var(--line);border-radius:18px}}
+
+/* IFSI+ V4 — micro-interactions & premium UI */
+.screen.active{animation:screenIn .24s ease-out}
+@keyframes screenIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.card,.qcard,.caseCard,.ficheCat,.progressBox,.quick,.badgeCard,.listItem{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.card:hover,.qcard:hover,.caseCard:hover,.ficheCat:hover,.progressBox:hover,.quick:hover,.badgeCard:hover,.listItem:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(16,24,40,.08)}
+.action:before,.quick:before{content:"";float:right;width:7px;height:7px;border-top:2px solid #b4bdca;border-right:2px solid #b4bdca;transform:rotate(45deg);margin-top:5px}
+.hero .btn{background:#fff;color:#1d4ed8;box-shadow:0 8px 20px rgba(0,0,0,.12)}
+.hero .btn:active{transform:scale(.975)}
+.homeSectionIcon{width:34px;height:34px;border-radius:11px;display:inline-grid;place-items:center;background:#eff6ff;margin-right:8px}
+.badgeCard{position:relative;overflow:hidden}
+.badgeCard:after{content:"";position:absolute;inset:auto -20px -40px auto;width:90px;height:90px;border-radius:50%;background:#f8fafc}
+#leaderboard .hero{padding:18px 20px}
+#leaderboard .hero p{margin-bottom:0}
+#profile .qcard{overflow:hidden}
+#profile .profileHead{padding-bottom:4px}
+#profile .avatar{box-shadow:0 8px 24px rgba(37,99,235,.14)}
+#qcm .qcard{box-shadow:0 18px 40px rgba(16,24,40,.07)}
+#qcm .meta{display:inline-flex;background:#eff6ff;padding:6px 9px;border-radius:999px}
+#qcm .answer{min-height:54px}
+#qcm .answer.correct:before{content:"✓";font-weight:900;margin-right:7px}
+#qcm .answer.wrong:before{content:"×";font-weight:900;margin-right:7px}
+#auth .authbox{animation:authIn .4s cubic-bezier(.2,.8,.2,1)}
+@keyframes authIn{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+/* IFSI+ V5 — UX polish */
+.v5TopStats{display:grid;grid-template-columns:1.35fr .9fr .9fr;gap:9px;margin:12px 0 15px}
+.v5Stat{background:#fff;border:1px solid var(--line);border-radius:17px;padding:12px;box-shadow:var(--shadow)}
+.v5Stat .v5Num{font-size:21px;font-weight:950;letter-spacing:-.7px}.v5Stat small{display:block;color:var(--muted);font-size:10px;font-weight:750;margin-top:3px}
+.xpBar{height:9px;background:#edf1f7;border-radius:99px;overflow:hidden;margin-top:8px}.xpBar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#2563eb,#6366f1);border-radius:99px;transition:width .5s ease}
+.dailyGoal{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:19px;padding:14px;box-shadow:var(--shadow)}
+.dailyGoal .goalIcon{width:42px;height:42px;border-radius:13px;background:#fff7e6;display:grid;place-items:center;font-size:20px}
+.dailyGoal .goalMain{flex:1}.dailyGoal b{font-size:13px}.dailyGoal small{display:block;color:var(--muted);margin-top:3px}
+.qProgress{height:7px;background:#edf1f7;border-radius:99px;overflow:hidden;margin:12px 0 15px}.qProgress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#2563eb,#4f46e5);border-radius:99px;transition:width .25s ease}
+.qHeader{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.difficultyPill{font-size:10px;font-weight:850;padding:5px 8px;border-radius:999px;background:#f2f4f7;color:#475467}
+.ficheBreadcrumb{display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--muted);font-size:11px;margin:8px 0 12px}.ficheBreadcrumb b{color:var(--text)}
+.ficheBack{background:#fff;border:1px solid var(--line);padding:9px 12px;border-radius:12px;font-weight:800;font-size:12px}
+.podium{display:grid;grid-template-columns:1fr 1.12fr 1fr;align-items:end;gap:8px;margin:14px 0 16px}
+.podiumCard{background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px 8px;text-align:center;box-shadow:var(--shadow);min-width:0}
+.podiumCard.first{padding-top:18px;border-color:#f4d27a;box-shadow:0 16px 35px rgba(245,183,0,.13)}
+.podiumAvatar{width:52px;height:52px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 5px 16px rgba(16,24,40,.12)}
+.podiumRank{font-size:20px;font-weight:950;margin:4px 0}.podiumName{font-size:11px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.podiumXp{font-size:10px;color:var(--muted);margin-top:3px}
+.rankHeader{display:flex;justify-content:space-between;align-items:center;margin:18px 0 9px}.rankHeader h3{margin:0;font-size:14px}
+.levelBadge{display:inline-flex;align-items:center;gap:6px;background:#eff6ff;color:#1d4ed8;padding:6px 9px;border-radius:999px;font-size:10px;font-weight:900}
+.profileLevel{background:linear-gradient(135deg,#eef5ff,#f6f3ff);border:1px solid #dbe5ff;border-radius:18px;padding:14px;margin-top:14px}
+.profileLevelTop{display:flex;justify-content:space-between;align-items:center;gap:10px}.profileLevel small{color:var(--muted)}
+@media(max-width:430px){.v5TopStats{grid-template-columns:1fr 1fr}.v5TopStats .v5Stat:first-child{grid-column:1/-1}.podium{gap:6px}.podiumAvatar{width:46px;height:46px}}
+
+/* QCM catalog filters */
+#qcm .filters{display:block;overflow-x:auto;white-space:nowrap;padding-bottom:7px}
+#qcm .filters>div{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+#qcm .filters .chip{flex:0 0 auto}
+#qcm .qCatalogInfo{margin:0 0 12px;color:var(--muted);font-size:11px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="brand"><div class="logo">IFSI<span>+</span></div><button id="userPill" class="userpill" onclick="go('profile')">Connexion</button></div></header>
+<main>
+<section id="auth" class="screen active">
+<div class="authbox">
+<div class="eyebrow">Ton espace de révision</div><h2 id="authTitle">Bienvenue sur IFSI+</h2>
+<p class="sub">Révise, progresse et mesure tes progrès. Ton XP, tes résultats et ton classement sont sauvegardés automatiquement.</p>
+<div class="quickRow" style="margin:0 0 17px">
+  <div class="quick" style="padding:10px"><span class="qi">🧠</span><span><b>Réviser</b><small>QCM & fiches</small></span></div>
+  <div class="quick" style="padding:10px"><span class="qi">🏆</span><span><b>Progresser</b><small>XP & badges</small></span></div>
+</div>
+<div id="signupFields">
+<label class="formlabel">Pseudo</label><input id="nickname" placeholder="Ex. InfirmierDu35">
+<label class="formlabel">Année</label><select id="year"><option>1A</option><option selected>2A</option><option>3A</option></select>
+<label class="formlabel">École (optionnel)</label><input id="school" placeholder="IFSI...">
+</div>
+<label class="formlabel">Email</label><input id="email" type="email" placeholder="ton@email.fr">
+<label class="formlabel">Mot de passe</label><input id="password" type="password" placeholder="6 caractères minimum">
+<div id="authMsg"></div>
+<button class="btn full" id="authBtn" onclick="submitAuth()">Créer mon compte</button>
+<button class="btn secondary full" style="margin-top:8px" onclick="toggleAuth()">J'ai déjà un compte</button>
+</div>
+</section>
+
+<section id="home" class="screen">
+  <div class="hero">
+    <div class="eyebrow">IFSI+ • Révision du jour</div>
+    <h2 id="welcome">Salut 👋</h2>
+    <p>Un peu chaque jour. Des QCM réalistes, des cas cliniques et des fiches pensées pour les partiels.</p>
+    <button class="btn" onclick="go('qcm')">Commencer une session →</button>
+  </div>
+
+  <div class="v5TopStats">
+    <div class="v5Stat"><div class="v5Num"><span id="homeXpNext">0</span> XP</div><small>Progression vers le prochain niveau</small><div class="xpBar"><span id="homeXpBar"></span></div></div>
+    <div class="v5Stat"><div class="v5Num" id="homeWeeklyXp">0</div><small>XP cette semaine</small></div>
+    <div class="v5Stat"><div class="v5Num" id="homeRank">—</div><small>rang actuel</small></div>
+  </div>
+  <div class="dailyGoal">
+    <div class="goalIcon">🎯</div><div class="goalMain"><b id="dailyGoalTitle">Objectif du jour</b><small id="dailyGoalSub">Réponds à 5 questions pour garder le rythme.</small></div>
+    <span class="levelBadge" id="dailyGoalCount">0/5</span>
+  </div>
+
+  <div class="statgrid">
+    <div class="stat"><strong id="xp">0</strong><span>XP total</span></div>
+    <div class="stat"><strong id="streak">0</strong><span>jours de série</span></div>
+    <div class="stat"><strong id="success">0%</strong><span>réussite</span></div>
+    <div class="stat"><strong id="errors">0</strong><span>erreurs</span></div>
+  </div>
+
+  <div class="sectionTitle"><h2><span class="homeSectionIcon">⚡</span>Continuer à réviser</h2></div>
+  <div class="quickRow">
+    <button class="quick" onclick="go('qcm')"><span class="qi">📝</span><span><b>QCM</b><small>Teste tes connaissances</small></span></button>
+    <button class="quick" onclick="go('cases')"><span class="qi">🏥</span><span><b>Cas cliniques</b><small>Travaille ton raisonnement</small></span></button>
+  </div>
+
+  <div class="sectionTitle"><h2>Ton espace de travail</h2></div>
+  <div class="grid">
+    <button class="card action" onclick="go('fiches')"><div class="icon">📚</div><h3>Fiches de cours</h3><p>Révise par UE et par chapitre.</p></button>
+    <button class="card action" onclick="go('leaderboard')"><div class="icon">🏆</div><h3>Classement</h3><p>Gagne de l'XP et vise le Top 10.</p></button>
+    <button class="card action" onclick="go('profile')"><div class="icon">👤</div><h3>Mon profil</h3><p>Stats, photo et badges.</p></button>
+    <button class="card action" onclick="go('qcm')"><div class="icon">🎯</div><h3>Mode entraînement</h3><p>Une question après l'autre.</p></button>
+  </div>
+
+  <div class="sectionTitle"><h2><span class="homeSectionIcon">🔥</span>Défi de la semaine</h2></div>
+  <button class="progressBox" style="width:100%;text-align:left;border:1px solid var(--line)" onclick="go('leaderboard')">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+      <div><b>Entre dans le Top 10</b><p class="sub" style="margin:5px 0 0">Gagne ton badge Or en accumulant de l'XP cette semaine.</p></div>
+      <span style="font-size:24px">🥇</span>
+    </div>
+  </button>
+
+  <div class="sectionTitle"><h2><span class="homeSectionIcon">📈</span>Progression</h2></div>
+  <div class="progressBox">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px"><b>Objectif de révision</b><small class="sub">À compléter</small></div>
+    <div class="progressLine"><span></span></div>
+    <p class="sub" style="margin:9px 0 0">Réponds à quelques questions aujourd'hui pour faire progresser ton niveau.</p>
+  </div>
+
+  <div class="ad">ESPACE PUBLICITAIRE • discret • jamais entre deux réponses</div>
+</section>
+
+<section id="qcm" class="screen">
+<div class="sectionTitle"><div><div class="eyebrow" style="color:var(--primary)">Entraînement</div><h2>📝 QCM</h2><p class="sub">Des questions variées, des distracteurs réalistes et une correction proposition par proposition.</p></div></div>
+<div class="filters" id="filters"></div>
+<div class="qcard"><div class="qHeader"><div class="meta" id="qMeta"></div><span class="difficultyPill" id="qDifficulty">Intermédiaire</span></div><div class="qProgress"><span id="qProgressBar"></span></div><div class="question" id="qText"></div><div id="answers" class="answers"></div><div id="explain" class="explain"></div><button id="nextQ" class="btn" style="display:none;margin-top:12px" onclick="nextQuestion()">Question suivante →</button></div>
+</section>
+
+<section id="cases" class="screen">
+<div class="sectionTitle"><div><div class="eyebrow" style="color:var(--primary)">Raisonnement clinique</div><h2>🏥 Cas cliniques</h2>
+<p class="sub">Des situations variées : analyse, priorisation, surveillance, traitements et communication. Chaque cas donne une correction détaillée.</p></div></div>
+<div id="caseList" class="caseGrid"></div>
+</section>
+
+<section id="fiches" class="screen">
+<div class="sectionTitle"><div><div class="eyebrow" style="color:var(--primary)">Bibliothèque</div><h2>📚 Fiches de cours</h2>
+<p class="sub">Choisis ton référentiel puis navigue par UE et chapitre. Les fiches sont conçues pour comprendre avant de mémoriser.</p></div></div>
+<div class="qcard" style="margin:12px 0">
+<label class="formlabel">Mon référentiel</label>
+<select id="ficheYear" onchange="changeFicheYear(this.value)"><option value="1A">1A — référentiel 2026</option><option value="2A" selected>2A — référentiel 2009</option><option value="3A">3A — référentiel 2009</option></select>
+<div id="ficheFrameworkInfo" class="sub"></div>
+</div>
+<div id="ficheCategories" class="ficheGrid"></div>
+<div id="ficheDetail" style="display:none"></div>
+</section>
+
+<section id="profile" class="screen">
+<div class="sectionTitle"><div><div class="eyebrow" style="color:var(--primary)">Espace étudiant</div><h2>👤 Mon profil</h2></div></div>
+<div class="qcard">
+  <div class="profileHead">
+    <img id="avatarPreview" class="avatar" src="" alt="Photo de profil">
+    <div><h2 id="profileName" style="margin:0">Étudiant</h2><p id="profileMeta" class="sub" style="margin:4px 0 0"></p></div>
+  </div>
+  <div style="margin-top:16px">
+    <label class="formlabel">Photo de profil</label>
+    <input id="avatarInput" type="file" accept="image/png,image/jpeg,image/webp" onchange="uploadAvatar(this)">
+    <div id="avatarMsg" class="sub"></div>
+  </div>
+</div>
+<div class="profileLevel">
+  <div class="profileLevelTop"><div><b id="profileLevelName">Niveau 1</b><small id="profileLevelHint">Encore 100 XP pour le prochain niveau</small></div><span class="levelBadge" id="profileLevelXp">0 XP</span></div>
+  <div class="xpBar"><span id="profileLevelBar"></span></div>
+</div>
+<div class="sectionTitle"><h2>🏅 Mes badges</h2></div>
+<div id="badgeGrid" class="badgeGrid"></div>
+<div class="sectionTitle"><h2>📊 Mes statistiques</h2></div>
+<div class="statgrid"><div class="stat"><strong id="profileXp">0</strong><span>XP total</span></div><div class="stat"><strong id="profileWeeklyXp">0</strong><span>XP cette semaine</span></div><div class="stat"><strong id="profileRank">—</strong><span>rang cette semaine</span></div><div class="stat"><strong id="profileDone">0</strong><span>QCM répondus</span></div></div>
+<button class="btn secondary full" style="margin-top:14px" onclick="signOut()">Se déconnecter</button>
+</section>
+
+<section id="leaderboard" class="screen"><div class="sectionTitle"><div><div class="eyebrow" style="color:var(--primary)">Compétition hebdomadaire</div><h2>🏆 Classement</h2><p class="sub">Du lundi 00h00 au dimanche soir. Chaque semaine, les meilleurs étudiants gagnent un badge.</p></div></div><div class="hero" style="margin-top:12px"><div class="eyebrow">Récompenses hebdomadaires</div><p style="margin:7px 0 0">🥇 <b>Top 10</b> : badge Or &nbsp;•&nbsp; 🥈 <b>Top 20</b> : badge Argent &nbsp;•&nbsp; 🥉 <b>Top 30</b> : badge Bronze</p></div><div id="leaderPodium"></div><div class="rankHeader"><h3>Classement complet</h3><span class="levelBadge">Lundi → dimanche</span></div><div id="leaderList" class="list"><div class="listItem">Chargement…</div></div></section>
+</main>
+<nav id="nav" style="display:none">
+<button data-nav="home" onclick="go('home')"><span class="ni">🏠</span>Accueil</button>
+<button data-nav="qcm" onclick="go('qcm')"><span class="ni">📝</span>QCM</button>
+<button data-nav="cases" onclick="go('cases')"><span class="ni">🏥</span>Cas</button>
+<button data-nav="fiches" onclick="go('fiches')"><span class="ni">📚</span>Fiches</button>
+<button data-nav="leaderboard" onclick="go('leaderboard')"><span class="ni">🏆</span>Classement</button>
+<button data-nav="profile" onclick="go('profile')"><span class="ni">👤</span>Profil</button>
+</nav><div id="toast" class="toast"></div>
+</div>
+<script>
+const SUPABASE_URL="https://zdsacfpapjvtowxdphdx.supabase.co";
+const SUPABASE_KEY="sb_publishable_OL17vjYomwehaKhXZ9L54A_vpr88gHU";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let session=null, profile=null, authMode="signup", filtered=[],qi=0,answered=false;
+
+const questions=[
+{ue:"UE 2.5",q:"Un patient présente une dyspnée aiguë, une SpO₂ à 88 % à l'air ambiant et une FR à 30/min. Quelle action infirmière est prioritaire ?",a:["Installer le patient en position demi-assise et évaluer rapidement sa tolérance respiratoire","Faire réaliser au patient quelques pas pour évaluer sa capacité à l'effort","L'allonger à plat afin de faciliter le repos et attendre une nouvelle mesure de SpO₂","Lui faire boire un grand verre d'eau puis réévaluer la saturation"],c:0,e:"La position demi-assise peut améliorer le confort respiratoire. La priorité est d'évaluer rapidement la gravité, surveiller les constantes et alerter selon la situation."},
+{ue:"UE 2.5",q:"Chez un patient présentant un œdème aigu du poumon (OAP), quel ensemble de signes est le plus cohérent ?",a:["Dyspnée chronique isolée, bradycardie et absence de signes respiratoires","Douleur abdominale, fièvre isolée et saturation constamment normale","Dyspnée aiguë, orthopnée, crépitants pulmonaires et désaturation","Toux ancienne sans dyspnée, avec constantes stables"],c:2,e:"L'OAP peut se manifester par une dyspnée brutale, une orthopnée, des crépitants et une hypoxémie."},
+{ue:"UE 2.8",q:"Un patient est confus et très dyspnéique. Quelle donnée recueillie en premier aide le plus à apprécier immédiatement la gravité respiratoire ?",a:["La date de sa dernière hospitalisation","Ses habitudes alimentaires de la semaine","La fréquence respiratoire et la SpO₂","Son niveau d'activité physique habituel"],c:2,e:"La fréquence respiratoire et la saturation apportent immédiatement des éléments objectifs sur la fonction respiratoire."},
+{ue:"UE 2.8",q:"Une patiente présente soudainement une faiblesse du bras droit et un trouble de la parole. Quelle information est particulièrement urgente à rechercher ?",a:["La date de son prochain rendez-vous médical","L'heure exacte de début des symptômes ou la dernière heure où elle était normale","La quantité de nourriture consommée au petit-déjeuner","Son poids habituel sur les trois derniers mois"],c:1,e:"En cas de suspicion d'AVC, l'heure de début des symptômes ou la dernière heure connue normale est une donnée déterminante pour l'orientation et la prise en charge urgente."},
+{ue:"UE 2.11",q:"Avant d'administrer un médicament, quelle vérification réduit directement le risque d'erreur d'administration ?",a:["Demander au patient s'il reconnaît la boîte avant de consulter la prescription","Vérifier l'identité du patient, le médicament, la dose, la voie et la prescription","Préparer tous les médicaments du service en une seule fois pour gagner du temps","Administrer le traitement puis vérifier la prescription si le patient présente une réaction"],c:1,e:"Les vérifications liées à l'identité, à la prescription et aux modalités d'administration sont essentielles avant l'administration."},
+{ue:"UE 2.11",q:"Un patient traité par furosémide présente une augmentation importante de la diurèse. Quelle surveillance est particulièrement pertinente ?",a:["Arrêter systématiquement le traitement dès que la diurèse augmente","Ne surveiller que la température car le médicament agit sur les reins","Conseiller de boire le moins possible sans tenir compte de la prescription","Surveiller notamment la tension artérielle, le poids, la diurèse et les électrolytes selon le contexte"],c:3,e:"Le furosémide augmente la diurèse. La surveillance peut notamment porter sur la tension artérielle, le poids, la diurèse et l'équilibre hydro-électrolytique selon le contexte."},
+{ue:"UE 4.3",q:"Lors d'une transmission ciblée concernant une aggravation respiratoire, quelle formulation est la plus utile ?",a:["Écrire uniquement : « patient pas bien » afin de laisser le collègue interpréter","Noter uniquement le diagnostic supposé sans préciser les observations","Attendre la fin de la journée pour transmettre si les symptômes persistent","Décrire les signes observés, les paramètres, les actions réalisées et la réponse du patient"],c:3,e:"Une transmission utile repose sur des données observables et pertinentes : signes, paramètres, actions réalisées et évolution/réponse du patient."},
+{ue:"UE 4.3",q:"Après une intervention infirmière, pourquoi réévaluer le patient ?",a:["Pour confirmer automatiquement que le diagnostic initial était exact","Parce qu'une réévaluation remplace toujours la surveillance des constantes","Pour vérifier l'efficacité de l'intervention et détecter une aggravation ou un effet indésirable","Uniquement si le patient demande à être réévalué"],c:2,e:"La réévaluation permet de mesurer l'évolution du patient et l'efficacité ou la tolérance des interventions."},{ue:"UE 2.4",difficulty:"Difficile",q:"Lors d'une situation de risque infectieux, quelle mesure a la priorité avant un soin nécessitant un contact direct avec le patient ?",a:["Réaliser une hygiène des mains adaptée au soin et préparer le matériel nécessaire","Mettre systématiquement deux paires de gants avant toute interaction","Désinfecter uniquement le chariot après le soin","Porter un masque chirurgical même si aucune indication ne le justifie"],c:0,e:"L'hygiène des mains est une mesure fondamentale de prévention de la transmission croisée. Les équipements de protection sont ajoutés selon le risque et le soin."},
+{ue:"UE 2.4",difficulty:"Difficile",q:"Après avoir retiré des gants souillés à la fin d'un soin, quelle affirmation est correcte ?",a:["Les gants remplacent l'hygiène des mains si aucun liquide n'a traversé","Une hygiène des mains reste nécessaire après le retrait des gants","Il faut conserver les gants pour toucher le matériel propre","Il suffit de changer de gants sans hygiène des mains"],c:1,e:"Le port de gants ne remplace pas l'hygiène des mains. Après leur retrait, une hygiène des mains adaptée reste nécessaire."},
+{ue:"UE 2.4",difficulty:"Expert",q:"Un patient porteur d'une infection transmissible par contact nécessite un soin avec risque de contact avec des sécrétions. Quelle combinaison est la plus cohérente ?",a:["Gants uniquement, quel que soit le soin","Équipements adaptés au risque de contact avec les sécrétions, associés à l'hygiène des mains","Aucun équipement si le patient est conscient","Masque FFP2 systématique, sans autre précaution"],c:1,e:"Les précautions complémentaires dépendent du mode de transmission et du soin. Les protections se choisissent selon le risque réel d'exposition."},
+{ue:"UE 2.5",difficulty:"Expert",q:"Un patient dyspnéique présente FR 34/min, SpO₂ 86 %, TA 92/58 mmHg, sueurs et agitation. Quelle proposition est la plus pertinente ?",a:["Attendre la prochaine tournée pour réévaluer les constantes","Évaluer immédiatement la gravité, installer le patient, poursuivre la surveillance et alerter sans délai selon le protocole","Lui proposer de marcher quelques mètres pour tester sa tolérance","Se concentrer uniquement sur la température"],c:1,e:"L'association désaturation, polypnée, hypotension et agitation évoque une situation potentiellement grave nécessitant une évaluation et une alerte rapides."},
+{ue:"UE 2.5",difficulty:"Expert",q:"Un patient insuffisant cardiaque a pris 2,5 kg en quelques jours et présente une aggravation de sa dyspnée. Quelle interprétation est la plus pertinente ?",a:["La variation pondérale est forcément liée à une prise de masse musculaire","Cette prise de poids rapide peut traduire une rétention hydrosodée et doit être mise en relation avec les autres signes cliniques","La prise de poids exclut une décompensation cardiaque","Le poids n'a aucun intérêt dans la surveillance d'une insuffisance cardiaque"],c:1,e:"Une prise de poids rapide peut être un signe de rétention hydrosodée. Elle doit être interprétée avec les symptômes, les constantes et le contexte clinique."},
+{ue:"UE 2.8",difficulty:"Expert",q:"Un patient diabétique est conscient, tremble, sue et présente une glycémie capillaire basse. Quelle conduite est la plus adaptée si une hypoglycémie est confirmée et qu'il peut avaler ?",a:["Lui administrer rapidement une source de glucides selon le protocole puis réévaluer la glycémie et l'état clinique","Lui faire boire uniquement de l'eau","Le faire marcher pour stimuler sa glycémie","Attendre une heure avant toute intervention"],c:0,e:"Chez un patient conscient pouvant avaler, la correction rapide de l'hypoglycémie selon le protocole est prioritaire, suivie d'une réévaluation."},
+{ue:"UE 2.8",difficulty:"Difficile",q:"Après un AVC suspecté, le patient présente une difficulté à avaler. Pourquoi cette donnée est-elle importante avant une prise orale ?",a:["Parce qu'elle peut faire suspecter un trouble de déglutition avec risque de fausse route","Parce qu'une dysphagie signifie toujours que le patient est déshydraté","Parce qu'elle permet de supprimer définitivement toute alimentation","Parce qu'elle n'a aucune conséquence sur la sécurité du patient"],c:0,e:"Une dysphagie peut exposer à une fausse route. La sécurité de la prise orale doit être évaluée selon les protocoles et la situation clinique."},
+{ue:"UE 2.11",difficulty:"Expert",q:"Une prescription indique 750 mg d'un médicament. Les comprimés disponibles sont dosés à 250 mg. Combien de comprimés correspondent à la dose prescrite ?",a:["1 comprimé","2 comprimés","3 comprimés","4 comprimés"],c:2,e:"750 mg ÷ 250 mg par comprimé = 3 comprimés. Le calcul doit toujours être vérifié avant administration."},
+{ue:"UE 2.11",difficulty:"Expert",q:"Une perfusion de 500 mL doit passer en 4 heures. Quel débit horaire théorique faut-il régler ?",a:["100 mL/h","125 mL/h","150 mL/h","200 mL/h"],c:1,e:"500 mL ÷ 4 h = 125 mL/h. En pratique, vérifier la prescription, le dispositif et les règles du service."},
+{ue:"UE 4.3",difficulty:"Expert",q:"Dans une transmission ciblée, laquelle est la plus professionnelle ?",a:["« Patient bizarre aujourd'hui »","« Patient très mauvais, à surveiller »","« À 14 h : FR 32/min, SpO₂ 89 %, dyspnée au repos ; installé demi-assis, médecin prévenu, réévaluation à 14 h 15 : SpO₂ 93 % »","« Je pense qu'il va faire une complication »"],c:2,e:"Une transmission utile distingue les faits observés, les actions réalisées et l'évolution du patient, avec des données datées et objectivées."},
+{ue:"UE 4.3",difficulty:"Difficile",q:"Un patient refuse un soin après avoir reçu une information claire. Quelle attitude est la plus adaptée ?",a:["Réaliser le soin malgré son refus car il est prescrit","Rechercher les raisons du refus, vérifier sa compréhension, respecter son choix dans le cadre légal et transmettre","Menacer le patient de prévenir sa famille","Ne rien noter car un refus ne concerne pas les transmissions"],c:1,e:"Le consentement est essentiel. Il faut rechercher les raisons du refus, informer, respecter le choix dans le cadre applicable et assurer la traçabilité."},
+{ue:"UE 3.1",difficulty:"Difficile",q:"Chez un patient alité présentant un risque d'escarre, quelle intervention est la plus pertinente ?",a:["Limiter les changements de position pour éviter de le déranger","Évaluer le risque, surveiller la peau et adapter les changements de position et supports selon le plan de soins","Masser systématiquement une zone rouge","Attendre l'apparition d'une plaie pour agir"],c:1,e:"La prévention repose sur l'évaluation du risque, la surveillance cutanée, la mobilisation/repositionnement et l'adaptation des supports."},
+{ue:"UE 4.4",difficulty:"Expert",q:"Lors d'une situation d'urgence, quelle organisation est la plus sûre pour l'équipe ?",a:["Tout le monde réalise la même tâche sans communication","Identifier rapidement la situation, répartir les rôles, transmettre les informations utiles et réévaluer","Attendre que quelqu'un d'autre prenne la décision","Commencer plusieurs gestes sans vérifier la priorité"],c:1,e:"En urgence, la coordination, la répartition des rôles, la communication et la réévaluation permettent de sécuriser la prise en charge."}
+];
+
+
+const casesData=[
+{ue:"UE 2.5",tag:"Respiratoire",title:"Dyspnée aiguë et désaturation",s:"Mme B., 74 ans, présente une dyspnée brutale. FR 32/min, SpO₂ 87 % à l'air ambiant, TA 146/84 mmHg. Elle est anxieuse et parle par phrases courtes.",q:"Quelle est ta priorité ?",a:["La faire marcher pour évaluer sa tolérance","L'installer en position adaptée, évaluer la gravité, surveiller et alerter selon le protocole","Lui faire boire de l'eau","Attendre 30 minutes avant de refaire la SpO₂"],c:1,e:"La priorité est de reconnaître une détresse respiratoire potentielle, installer la patiente, mesurer les paramètres utiles, appliquer les mesures prescrites/protocolisées et alerter rapidement si nécessaire.",learn:"Ne jamais banaliser une désaturation associée à une polypnée et une altération clinique."},
+{ue:"UE 2.8",tag:"Neurologie",title:"Suspicion d'AVC",s:"M. D., 68 ans, présente soudainement une faiblesse du bras droit et une parole inhabituelle. Sa famille indique qu'il allait bien il y a environ 45 minutes.",q:"Quelle donnée dois-tu obtenir en priorité ?",a:["Son poids habituel","L'heure de début des signes ou la dernière heure connue normale","Son dernier repas","La date de sa prochaine consultation"],c:1,e:"La temporalité des symptômes est déterminante dans l'orientation d'une suspicion d'AVC. Il faut transmettre rapidement l'heure de début ou la dernière heure connue normale.",learn:"Face-bras-parole + heure de début = réflexe d'urgence."},
+{ue:"UE 2.11",tag:"Médicaments",title:"Anticoagulant et saignement",s:"Mme R. reçoit un anticoagulant. Elle signale des urines rouges et présente plusieurs ecchymoses apparues récemment.",q:"Quelle conduite est la plus pertinente ?",a:["Rassurer car les ecchymoses sont fréquentes","Évaluer les signes de saignement, contrôler les paramètres prescrits et transmettre rapidement","Conseiller d'arrêter seule son traitement","Ne rien noter si la tension est normale"],c:1,e:"Des signes de saignement chez un patient anticoagulé nécessitent une évaluation clinique et une transmission rapide. L'arrêt ou la modification du traitement ne se fait pas sans décision médicale/protocole.",learn:"Anticoagulant + signe hémorragique = évaluation, surveillance, transmission."},
+{ue:"UE 3.1",tag:"Dépendance",title:"Risque d'escarre",s:"Un patient âgé est alité depuis plusieurs jours. Il est dénutri et présente une rougeur persistante au sacrum.",q:"Quelle intervention est la plus adaptée ?",a:["Masser fortement la zone rouge","Évaluer le risque, surveiller la peau, décharger la zone et adapter les supports/repositionnements","Attendre l'apparition d'une plaie","Limiter les changements de position"],c:1,e:"Une rougeur persistante doit être prise au sérieux. La prévention repose sur l'évaluation, la diminution des pressions, les changements de position adaptés et la surveillance cutanée.",learn:"Prévenir vaut mieux que traiter : pression + dénutrition + immobilité = vigilance accrue."},
+{ue:"UE 4.3",tag:"Communication",title:"Refus de soin",s:"Un patient refuse une toilette malgré une explication claire. Il dit qu'il est trop fatigué et demande qu'on revienne plus tard.",q:"Quelle attitude est la plus professionnelle ?",a:["Faire le soin malgré son refus","Rechercher la raison du refus, respecter son choix, proposer une autre organisation et tracer la situation","Menacer de prévenir la famille","Ignorer le refus"],c:1,e:"Le consentement du patient doit être respecté. Il faut rechercher la cause du refus, informer, proposer une alternative si possible et assurer la traçabilité.",learn:"Informer, écouter, respecter, proposer, tracer."},
+{ue:"UE 4.4",tag:"Urgence",title:"Aggravation brutale",s:"Pendant une tournée, un patient devient soudainement très pâle, confus et hypotendu. Il répond difficilement aux questions.",q:"Quelle organisation est la plus sûre ?",a:["Terminer la tournée puis revenir","Évaluer immédiatement, alerter, répartir les rôles et réévaluer en continu","Lui donner à manger","Le laisser seul pour chercher le dossier"],c:1,e:"Une altération aiguë de l'état clinique impose une évaluation immédiate et une organisation coordonnée de l'équipe avec alerte et surveillance rapprochée.",learn:"En urgence : reconnaître, alerter, agir, communiquer, réévaluer."},
+{ue:"UE 2.4",tag:"Infectiologie",title:"Précautions complémentaires",s:"Un patient nécessite des précautions complémentaires en raison d'un mode de transmission identifié. Tu dois réaliser un soin avec risque de contact avec des sécrétions.",q:"Quelle démarche est correcte ?",a:["Utiliser les protections adaptées au mode de transmission et au risque du soin","Porter systématiquement un FFP2 dans tous les cas","Ne pas faire d'hygiène des mains si des gants sont portés","Choisir les protections uniquement selon ce que préfère le soignant"],c:0,e:"Les équipements de protection sont choisis selon le mode de transmission et le risque réel d'exposition pendant le soin. Les précautions standard restent indispensables.",learn:"Précautions standard + précautions complémentaires adaptées au risque."},
+{ue:"UE 2.5",tag:"Cardiologie",title:"Décompensation cardiaque",s:"M. L. a pris 2,8 kg en quatre jours. Il présente des œdèmes des membres inférieurs et une dyspnée plus importante à l'effort.",q:"Quelle interprétation est la plus pertinente ?",a:["Cette prise de poids est forcément musculaire","Elle peut traduire une rétention hydrosodée et doit être mise en relation avec les autres signes","Elle exclut une décompensation","Le poids n'a pas d'intérêt"],c:1,e:"Une prise de poids rapide chez un patient insuffisant cardiaque peut témoigner d'une rétention hydrosodée. Elle doit être interprétée avec les autres signes cliniques.",learn:"Poids quotidien + œdèmes + dyspnée = surveillance de la décompensation."}
+];
+function renderCases(){
+ const box=document.getElementById('caseList');
+ box.innerHTML=casesData.map((x,n)=>`<div class="caseCard"><span class="caseTag">${x.ue} • ${x.tag}</span><h3>${x.title}</h3><p class="sub">${x.s}</p><div class="question" style="font-size:16px">${x.q}</div><div class="answers">${x.a.map((a,i)=>`<button class="answer" data-case="${n}" data-choice="${i}" onclick="answerCase(${n},${i},this)">${String.fromCharCode(65+i)}. ${a}</button>`).join('')}</div><div id="caseExplain${n}" class="explain"></div></div>`).join('');
+}
+function answerCase(n,i,btn){
+ const x=casesData[n], box=document.getElementById('caseExplain'+n); if(box.classList.contains('show'))return;
+ document.querySelectorAll(`[data-case="${n}"]`).forEach((b,j)=>{b.disabled=true;if(j===x.c)b.classList.add('correct')}); if(i!==x.c)btn.classList.add('wrong');
+ box.innerHTML=`<b>${i===x.c?'✅ Bonne analyse':'❌ À corriger'}</b><p><b>Réponse attendue :</b> ${x.a[x.c]}</p><p>${x.e}</p><div class="courseBlock"><h4>🧠 À retenir</h4><p>${x.learn}</p></div>`;box.classList.add('show');
+ saveCaseAttempt(x,i===x.c);
+}
+async function saveCaseAttempt(x,ok){const gain=ok?10:3;const qid=await ensureQuestion({q:x.s+' '+x.q,ue:x.ue,e:x.e});if(qid)await sb.from('attempts').insert({user_id:session.user.id,question_id:qid,selected_option_ids:[],is_correct:ok,xp_earned:gain});const {data,error}=await sb.rpc('add_xp',{p_gain:gain});if(!error&&data?.[0]){profile.xp=data[0].new_total_xp;document.getElementById('userPill').textContent='👤 '+profile.nickname+' • '+profile.xp+' XP';renderStats();toast((ok?'✅':'💡')+' +'+gain+' XP • classement mis à jour')}}
+
+const ficheCatalog={
+"1A":{framework:"2026",info:"Nouveau référentiel 2026 : cinq domaines et des UE transversales centrées sur le raisonnement clinique, les pratiques cliniques, la prévention, la communication et les données probantes.",cats:{
+"UE A.1 — Fondamentaux des sciences infirmières et raisonnement clinique":[["Recueil de données","Collecte, tri et hiérarchisation des données cliniques.","🧠"],["Raisonnement clinique","Questionnement, hypothèses, pensée critique et priorisation.","🔎"],["Projet de soins","Problèmes, risques, objectifs, interventions et évaluation.","🩺"]],
+"UE A.2 — Législation, déontologie, éthique":[["Consentement et refus de soins","Information, consentement, refus et traçabilité.","⚖️"],["Secret professionnel et données","Confidentialité et partage d'informations nécessaires.","🔐"],["Éthique en soins","Autonomie, bienfaisance, non-malfaisance, justice et dilemmes.","🧭"]],
+"UE B.1 — Sciences biomédicales":[["Cardio-pulmonaire","Anatomie, physiologie, sémiologie et grandes pathologies.","❤️"],["Neurologie","AVC, épilepsie, Parkinson et surveillance neurologique.","🧠"],["Douleur","Physiopathologie, évaluation et prise en charge.","📈"]],
+"UE B.3 — Pratiques et interventions infirmières":[["Soins courants et sécurité","Préparation, réalisation, surveillance et évaluation.","🧤"],["Urgences et FGSU","Reconnaître, alerter, sécuriser et coordonner.","🚨"],["Santé mentale","Repérage de la souffrance psychique et posture.","🧠"]],
+"UE C.1 — Santé publique, prévention et ETP":[["Promotion de la santé","Déterminants, prévention et approche populationnelle.","🌍"],["Éducation thérapeutique","Besoins, objectifs, compétences et évaluation.","💬"],["Dépistage","Repérer les risques et construire une action adaptée.","🛡️"]],
+"UE D.1 — Savoir-être, communication et leadership":[["Relation de soins","Écoute, reformulation, empathie et alliance.","🤝"],["Communication difficile","Anxiété, colère, refus et désaccords.","💬"],["Travail en équipe","Coopération, coordination et leadership clinique.","👥"]],
+"UE E.1 — Recherche, méthodes et données probantes":[["Publication scientifique","Question clinique, recherche documentaire et lecture critique.","🔬"],["Données probantes","Niveau de preuve et transfert à la pratique.","📚"],["Méthodologie de travail","Planifier, synthétiser et vérifier ses sources.","🗂️"]]
+}},
+"2A":{framework:"2009",info:"Référentiel 2009 : pour la rentrée 2026, la 2A poursuit l'ancien découpage. Correction importante : UE 2.4.S1 = Processus traumatiques, et non infectiologie.",cats:{
+"UE 2.4.S1 — Processus traumatiques":[["Traumatisme crânien","Signes de gravité, surveillance neurologique et complications.","🧠"],["Fractures","Douleur, état neurovasculaire distal et risques liés à l'immobilisation.","🦴"],["Polytraumatisé","Priorités, surveillance et transmissions.","🚑"]],
+"UE 2.5.S3 — Processus inflammatoires et infectieux":[["Sepsis","Signes d'alerte, surveillance et organisation de la prise en charge.","🦠"],["Inflammation","Réponse inflammatoire et interprétation clinique.","🔥"],["Prévention des infections","Précautions standard, complémentaires, AES et hygiène.","🧼"]],
+"UE 2.6.S2/S5 — Processus psychopathologiques":[["Dépression","Signes, risques, posture et surveillance.","🧠"],["Psychoses","Symptômes, alliance, désorganisation et sécurité.","🧩"],["Crise suicidaire","Repérage, sécurisation et transmission.","🚨"]],
+"UE 2.8.S3 — Processus obstructifs":[["AVC","Signes d'alerte, heure de début, surveillance et complications.","🧠"],["Asthme et BPCO","Dyspnée, signes de gravité, traitements et surveillance.","🫁"],["Insuffisance respiratoire","Oxygénothérapie, surveillance et aggravation.","🫁"]],
+"UE 2.11.S1/S3/S5 — Pharmacologie et thérapeutiques":[["Administration sécurisée","Identité, prescription, dose, voie, moment, surveillance et traçabilité.","💊"],["Calculs de doses","Conversions, débits, concentrations et contrôles.","🧮"],["Anticoagulants","Risques hémorragiques et surveillance.","🩸"],["Diurétiques","Effets attendus, effets indésirables et surveillance.","💧"]],
+"UE 4.3.S2/S4 — Soins d'urgence et transmissions":[["Transmissions ciblées","Données, actions, résultats et formulation objective.","📣"],["Priorisation en urgence","Évaluation, alerte, organisation et réévaluation.","🚨"],["Communication aiguë","Informer, rassurer et coordonner.","🤝"]],
+"UE 4.4.S2/S4/S5 — Thérapeutiques et contribution au diagnostic":[["Surveillance clinique","Constantes, signes d'aggravation et évolution.","📈"],["Oxygénothérapie","Dispositifs, sécurité et surveillance.","🫁"],["Perfusions","Point de ponction, débit, complications et traçabilité.","💉"]],
+"UE 4.5.S2/S4 — Soins infirmiers et gestion des risques":[["Risque infectieux","Prévention et actions correctives.","🧼"],["Risque de chute","Facteurs de risque et prévention.","⚠️"],["Sécurité médicamenteuse","Allergies, interactions et événements indésirables.","🛡️"]],
+"UE 5.2.S2 — Évaluation d'une situation clinique":[["Démarche clinique","Recueillir, analyser, problématiser, planifier et évaluer.","🧠"],["Macrocible et transmissions","Structurer les données utiles à la continuité.","📝"],["Priorités de soins","Urgence, risque, problème actuel et besoins.","🎯"]]
+}},
+"3A":{framework:"2009",info:"Référentiel 2009 : la 3A garde l'ancien découpage en septembre 2026, avec un niveau de raisonnement et d'autonomie attendu plus élevé.",cats:{
+"UE 2.9.S5 — Processus tumoraux":[["Cancérologie","Cancérogenèse, diagnostic et parcours.","🎗️"],["Chimiothérapie","Toxicités, surveillance et sécurité.","💊"],["Soins de support","Douleur, nutrition et accompagnement.","🤝"]],
+"UE 2.7.S4 — Défaillances organiques et processus dégénératifs":[["Insuffisance rénale","IRA, IRC, surveillance et traitements.","🫘"],["Insuffisance cardiaque avancée","Décompensation et coordination.","❤️"],["Maladies neurodégénératives","Évolution, autonomie et aidants.","🧠"]],
+"UE 3.4.S4/S6 — Initiation à la recherche":[["Question de recherche","Problématique, concepts et faisabilité.","🔬"],["Recherche documentaire","Mots-clés, bases et sélection des sources.","📚"],["Lecture critique","Méthode, biais, résultats et limites.","🔎"]],
+"UE 3.5.S4 — Encadrement et professionnalisation":[["Encadrement","Objectifs, accompagnement, feedback et évaluation.","👥"],["Analyse réflexive","Prendre du recul sur sa pratique.","🪞"],["Leadership clinique","Coordonner, prioriser et décider.","🧭"]],
+"UE 4.7.S5 — Soins palliatifs et fin de vie":[["Approche palliative","Confort, symptômes et projet de soins.","🕊️"],["Directives anticipées","Droits et expression de la volonté.","⚖️"],["Proches et deuil","Communication et accompagnement.","🤝"]],
+"UE 5.5.S5/S6 — Analyse de situations":[["Situations complexes","Plusieurs problèmes et risques simultanés.","🧠"],["Décision clinique","Priorités argumentées par les données.","🎯"],["Préparation au DE","Situations intégratives et raisonnement professionnel.","🎓"]]
+}}
+};
+const ficheTexts={
+"Recueil de données":"Le recueil de données est la première étape du raisonnement clinique. Il associe entretien, observation, dossier, constantes, antécédents, traitements et informations de l'équipe. Les données doivent être pertinentes, datées et reliées au motif de prise en charge.",
+"Raisonnement clinique":"Le raisonnement clinique consiste à transformer des données en hypothèses puis en priorités de soins. On confronte les signes observés aux connaissances, on recherche les risques et on réévalue l'évolution après les interventions.",
+"Projet de soins":"Le projet de soins organise la prise en charge autour des problèmes actuels, risques, objectifs, interventions et critères d'évaluation. Il doit être individualisé, réaliste et réactualisé avec l'évolution du patient.",
+"Consentement et refus de soins":"Le consentement suppose une information adaptée et une compréhension suffisante. Face à un refus, rechercher la cause, vérifier la compréhension, respecter la personne dans le cadre légal, prévenir l'équipe et tracer les éléments utiles.",
+"Secret professionnel et données":"Le secret professionnel protège les informations concernant la personne soignée. Le partage est limité aux professionnels autorisés et aux informations nécessaires à la continuité des soins. La vigilance concerne aussi les écrans, messageries et conversations informelles.",
+"Éthique en soins":"Une situation éthique met souvent en tension plusieurs valeurs : autonomie, bienfaisance, non-malfaisance et justice. L'objectif n'est pas de trouver une réponse automatique mais d'argumenter une décision respectueuse, proportionnée et collégiale.",
+"Cardio-pulmonaire":"Comprendre les liens entre ventilation, oxygénation, circulation et perfusion permet d'interpréter les signes cliniques. Dyspnée, douleur thoracique, cyanose, tachycardie, hypotension ou altération de conscience peuvent signaler une situation grave selon le contexte.",
+"Neurologie":"L'examen neurologique infirmier s'appuie notamment sur conscience, orientation, langage, motricité, sensibilité, pupilles et évolution. Une modification brutale doit être comparée à l'état antérieur et transmise rapidement.",
+"Douleur":"La douleur est une expérience individuelle. L'évaluation précise l'intensité, le type, la localisation, la durée, les facteurs aggravants/soulageants et le retentissement. La réévaluation après intervention est indispensable.",
+"Soins courants et sécurité":"Tout soin se prépare : identité, indication, matériel, hygiène, information et sécurité. Pendant et après le soin, observer la tolérance, prévenir les complications et tracer les éléments nécessaires à la continuité.",
+"Urgences et FGSU":"En situation urgente, sécuriser, évaluer rapidement les fonctions vitales, alerter et coordonner selon l'organisation. Les gestes réalisés doivent rester dans le cadre de compétence, de formation et des protocoles applicables.",
+"Santé mentale":"La relation en santé mentale repose sur une posture calme, non jugeante et structurée. Il faut repérer anxiété, désorganisation, hallucinations, idées suicidaires ou risque hétéro-agressif sans renforcer une croyance délirante.",
+"Promotion de la santé":"La promotion de la santé agit sur les déterminants individuels, sociaux et environnementaux. Elle ne se limite pas à donner des conseils : elle cherche à renforcer le pouvoir d'agir et l'accès aux ressources.",
+"Éducation thérapeutique":"L'éducation thérapeutique part des connaissances, besoins et objectifs de la personne. Les compétences visées doivent être concrètes et évaluables, avec une adaptation au niveau de compréhension et au quotidien du patient.",
+"Dépistage":"Le dépistage vise à identifier précocement une situation dans une population ou chez des personnes ciblées. Un résultat positif n'est pas automatiquement un diagnostic : il doit conduire vers une évaluation adaptée.",
+"Relation de soins":"La relation de soins repose sur l'écoute active, les questions adaptées, la reformulation et une attitude professionnelle. Il faut trouver un équilibre entre proximité relationnelle, respect de l'intimité et juste distance.",
+"Communication difficile":"Face à la colère, l'anxiété ou l'opposition, rester calme, reconnaître l'émotion sans forcément approuver le comportement, rechercher le besoin sous-jacent et poser un cadre clair. La sécurité reste prioritaire.",
+"Travail en équipe":"Le travail en équipe suppose une circulation fiable de l'information, une répartition claire des rôles et la reconnaissance des compétences de chacun. La coordination évite les doublons, les omissions et les ruptures de prise en charge.",
+"Publication scientifique":"Une publication scientifique présente une question, une méthode, des résultats et une discussion. Avant de l'utiliser, vérifier la pertinence de la question, la qualité de la méthode et les limites annoncées.",
+"Données probantes":"Les données probantes associent résultats de recherche, expertise clinique et préférences du patient. Une preuve doit être interprétée selon son niveau, son contexte et sa transférabilité à la situation réelle.",
+"Méthodologie de travail":"Une révision efficace commence par définir l'objectif, sélectionner des sources fiables, structurer les notions et tester la compréhension par rappel actif et entraînement. Les erreurs deviennent ensuite des axes de révision.",
+"Traumatisme crânien":"Après un traumatisme crânien, surveiller particulièrement conscience, pupilles, motricité, comportement, céphalées, vomissements et évolution. Une aggravation neurologique ou une baisse de conscience constitue un signal d'alerte majeur.",
+"Fractures":"Pour une fracture, associer mécanisme, douleur, déformation et examen neurovasculaire distal : couleur, température, sensibilité, motricité et pouls lorsque pertinent. La surveillance recherche notamment compression, ischémie et complications liées à l'immobilisation.",
+"Polytraumatisé":"Chez le polytraumatisé, les priorités sont déterminées par les menaces vitales immédiates. L'évaluation est structurée, les constantes sont répétées et les informations sur le mécanisme, l'évolution et les traitements sont transmises sans délai.",
+"Sepsis":"Le sepsis correspond à une réponse inadaptée de l'organisme face à une infection avec dysfonction d'organe. Une altération de l'état général, hypotension, tachypnée, confusion, oligurie ou autres signes de défaillance doivent faire rechercher une aggravation et déclencher l'alerte selon protocole.",
+"Inflammation":"La réaction inflammatoire associe des mécanismes vasculaires et cellulaires. Rougeur, chaleur, douleur, œdème et perte de fonction sont des signes classiques, mais leur interprétation dépend du site, de l'intensité et de l'évolution.",
+"Prévention des infections":"Les précautions standard s'appliquent à tous les patients. L'hygiène des mains, le port raisonné des équipements de protection, la gestion des déchets et objets piquants/coupants et la conduite après exposition réduisent le risque de transmission.",
+"Dépression":"Repérer tristesse persistante, perte d'intérêt, troubles du sommeil/appétit, ralentissement ou agitation, culpabilité et idées de mort. Le risque suicidaire doit être recherché de façon directe et calme lorsque le contexte le justifie.",
+"Psychoses":"Une psychose peut associer délire, hallucinations, désorganisation ou symptômes négatifs. La posture infirmière privilégie la sécurité, la relation, l'observation et la réduction de la stimulation sans valider le contenu d'une croyance délirante.",
+"Crise suicidaire":"L'évaluation recherche idées suicidaires, scénario, moyens disponibles, intention, temporalité, facteurs de protection et antécédents. En présence d'un risque important, ne pas laisser la personne seule et mobiliser rapidement l'équipe selon les procédures du service.",
+"AVC":"Devant un déficit neurologique brutal, noter l'heure de début ou la dernière heure connue normale et alerter rapidement. Surveiller conscience, parole, motricité, pupilles, constantes et déglutition selon le contexte.",
+"Asthme et BPCO":"Évaluer dyspnée, fréquence respiratoire, capacité à parler, tirage, saturation, agitation ou somnolence et épuisement. La prise en charge associe évaluation répétée, traitement prescrit/protocolisé et surveillance de la réponse.",
+"Insuffisance respiratoire":"L'insuffisance respiratoire se raisonne avec l'état clinique et les paramètres respiratoires. L'oxygénothérapie est un traitement qui nécessite dispositif adapté, surveillance de la cible prescrite et réévaluation de la réponse.",
+"Administration sécurisée":"Avant toute administration, vérifier l'identité, la prescription, le médicament, la dose, la voie, le moment, les allergies et les paramètres nécessaires. Après administration : surveiller efficacité, effets indésirables et tracer.",
+"Calculs de doses":"Toujours écrire les unités. Identifier dose prescrite, concentration disponible et quantité recherchée avant de calculer. Pour un débit simple : volume ÷ durée. Contrôler ensuite l'ordre de grandeur et la cohérence avec la prescription.",
+"Anticoagulants":"Les anticoagulants diminuent la coagulation mais exposent à un risque hémorragique. Rechercher ecchymoses inhabituelles, saignements, hématurie, méléna ou céphalées inhabituelles et connaître les surveillances propres à la molécule.",
+"Diurétiques":"Les diurétiques augmentent l'excrétion urinaire de sodium et d'eau. Selon la molécule, surveiller tension, poids, diurèse, hydratation et ions. Une faiblesse, crampes, hypotension ou modification importante de la diurèse mérite une évaluation.",
+"Transmissions ciblées":"Une transmission ciblée permet de faire comprendre rapidement une situation : données objectives, actions réalisées et résultats obtenus. Elle doit faire apparaître l'évolution et les éléments nécessitant une suite.",
+"Priorisation en urgence":"La priorité est liée au risque vital, à la gravité potentielle et à la vitesse d'évolution. Sécuriser, évaluer, alerter, intervenir dans son champ de compétence puis réévaluer : la situation peut modifier l'ordre des priorités.",
+"Communication aiguë":"En contexte aigu, l'information doit être courte, claire et structurée. Vérifier la compréhension, éviter les informations contradictoires et transmettre immédiatement les changements cliniques significatifs.",
+"Surveillance clinique":"La surveillance ne consiste pas à relever des chiffres isolés. Il faut comparer les valeurs au contexte et à l'état antérieur, observer les signes cliniques et rechercher une tendance d'amélioration ou d'aggravation.",
+"Oxygénothérapie":"L'oxygène est administré selon une indication et une cible adaptées au patient. Vérifier le dispositif, le débit ou la cible prescrite/protocolisée, la tolérance, l'état respiratoire et la réponse au traitement.",
+"Perfusions":"Surveiller le site de perfusion, le débit, la perméabilité, la douleur, rougeur, œdème, fuite et tolérance générale. Une anomalie impose une évaluation et une conduite conforme au dispositif et au protocole.",
+"Risque infectieux":"Le risque infectieux se prévient par l'hygiène des mains, l'asepsie, la gestion correcte du matériel et l'application des précautions adaptées. Il faut aussi reconnaître rapidement les signes évocateurs d'infection.",
+"Risque de chute":"Évaluer les facteurs intrinsèques et extrinsèques : antécédents, troubles de l'équilibre, médicaments, confusion, environnement, chaussures et aides techniques. La prévention doit être personnalisée et réévaluée.",
+"Sécurité médicamenteuse":"La sécurité médicamenteuse repose sur les vérifications avant administration, la connaissance du traitement, la surveillance et la traçabilité. En cas d'erreur ou de doute, sécuriser immédiatement la situation et alerter selon la procédure.",
+"Démarche clinique":"La démarche clinique relie données, problèmes, risques, objectifs, interventions et évaluation. Elle doit rester dynamique : une nouvelle donnée peut modifier les priorités et le projet de soins.",
+"Macrocible et transmissions":"La macrocible synthétise les informations essentielles à un moment clé de la prise en charge. Elle privilégie l'évolution, les problèmes, les traitements, les risques et les éléments utiles à la continuité des soins.",
+"Priorités de soins":"Pour hiérarchiser, distinguer menace vitale, risque de complication, problème actuel et besoins à moyen terme. Une priorité doit être justifiée par des données cliniques et non par une simple habitude.",
+"Cancérologie":"Le parcours en cancérologie comprend prévention, dépistage, diagnostic, annonce, traitements et soins de support. L'infirmier surveille les effets des traitements, les symptômes, la nutrition, la douleur et le vécu psychologique.",
+"Chimiothérapie":"Les traitements anticancéreux peuvent provoquer toxicités hématologiques, digestives, cutanées ou infectieuses selon les molécules. Identifier les effets attendus, les signes d'alerte et les règles de sécurité propres au traitement.",
+"Soins de support":"Les soins de support visent à réduire les conséquences de la maladie et des traitements : douleur, nutrition, fatigue, symptômes digestifs, soutien psychologique et social. Ils complètent le traitement de la maladie sans s'y substituer.",
+"Insuffisance rénale":"En insuffisance rénale, la capacité d'élimination des reins diminue. Surveiller diurèse, poids, œdèmes, tension, bilan biologique et effets des médicaments selon la situation. Distinguer évolution aiguë et chronique.",
+"Insuffisance cardiaque avancée":"Une décompensation peut associer dyspnée, œdèmes, prise de poids rapide, fatigue ou baisse de tolérance à l'effort. Comparer à l'état habituel, surveiller les constantes et repérer précocement l'aggravation.",
+"Maladies neurodégénératives":"Les maladies neurodégénératives évoluent dans le temps et peuvent affecter motricité, cognition, communication et autonomie. Les soins privilégient sécurité, maintien des capacités, adaptation de l'environnement et accompagnement des aidants.",
+"Question de recherche":"Une question de recherche part d'un problème professionnel précis. Elle doit définir la population ou situation concernée, le phénomène étudié et, si nécessaire, une comparaison ou un résultat attendu.",
+"Recherche documentaire":"Construire une recherche documentaire avec des mots-clés, synonymes et critères de sélection. Privilégier les recommandations, revues et sources scientifiques pertinentes, puis vérifier date, auteurs et méthodologie.",
+"Lecture critique":"Lire critiquement consiste à vérifier si la méthode répond à la question, si les résultats sont cohérents et si les limites ou biais peuvent modifier l'interprétation. Une association statistique ne prouve pas automatiquement une causalité.",
+"Encadrement":"Encadrer signifie accompagner une personne dans l'acquisition de compétences. Fixer un objectif observable, expliquer, laisser faire, observer, donner un feedback précis et réévaluer la progression.",
+"Analyse réflexive":"L'analyse réflexive permet de comprendre sa pratique à partir d'une situation réelle : faits, ressentis, connaissances mobilisées, choix effectués, résultats et pistes d'amélioration. Elle vise le transfert vers les situations futures.",
+"Leadership clinique":"Le leadership clinique consiste à mobiliser l'équipe autour d'une prise en charge sûre et cohérente. Il repose sur priorisation, communication, décision argumentée, coordination et capacité à demander de l'aide.",
+"Approche palliative":"La démarche palliative vise confort, qualité de vie et respect des choix de la personne. Évaluer les symptômes, anticiper les besoins, soutenir les proches et ajuster le projet de soins avec l'équipe.",
+"Directives anticipées":"Les directives anticipées permettent à une personne d'exprimer à l'avance ses volontés concernant sa fin de vie dans les conditions prévues par la loi. Elles doivent être recherchées et prises en compte selon le cadre réglementaire.",
+"Proches et deuil":"L'accompagnement des proches demande écoute, information adaptée et respect du rythme de chacun. Éviter les promesses ou formulations toutes faites ; reconnaître les émotions et orienter vers les ressources disponibles si nécessaire.",
+"Situations complexes":"Une situation complexe associe souvent plusieurs problèmes, risques, acteurs et temporalités. Décomposer la situation, hiérarchiser, rechercher les interactions, coordonner et réévaluer permet d'éviter une réponse trop simpliste.",
+"Décision clinique":"Une décision clinique doit être argumentée par les données disponibles, le niveau de risque, les recommandations, les préférences de la personne et le champ de compétence. La réévaluation peut conduire à modifier la décision.",
+"Préparation au DE":"Les situations intégratives demandent de relier connaissances, raisonnement clinique, posture professionnelle, communication et sécurité. Pour chaque cas, justifier les priorités, les actions et les critères d'évaluation plutôt que réciter un protocole."
+};
+
+const richFiches={
+"Traumatisme crânien":{
+intro:"Un traumatisme crânien correspond à une atteinte cérébrale consécutive à un choc. La gravité ne se juge pas uniquement sur la plaie visible : une lésion intracrânienne peut évoluer secondairement. Le rôle infirmier repose donc sur l'évaluation initiale, la comparaison à l'état antérieur et la surveillance de l'évolution.",
+meca:"Le traumatisme peut provoquer une commotion, une contusion ou une lésion hémorragique (par exemple hématome extradural ou sous-dural). Un saignement ou un œdème peut augmenter la pression intracrânienne et altérer la conscience. Une aggravation secondaire est possible même après une phase initialement rassurante.",
+signes:"Rechercher mécanisme et heure du traumatisme, perte de connaissance ou amnésie, céphalées, vomissements, confusion, somnolence, agitation, déficit moteur ou sensitif, troubles de la parole et anomalies pupillaires. Toute modification par rapport à l'état habituel est importante.",
+surv:"Surveiller régulièrement conscience et comportement, pupilles, motricité, douleur, vomissements et constantes selon la prescription et le protocole. Comparer chaque évaluation à la précédente et tracer précisément l'évolution.",
+prise:"Sécuriser la personne, limiter les mobilisations inutiles si un traumatisme cervical est suspecté, installer et surveiller selon les consignes médicales, préparer les examens prescrits et alerter rapidement en cas d'aggravation neurologique. Ne pas banaliser une somnolence nouvelle.",
+obj:["Identifier les signes d'alerte neurologiques après un traumatisme.","Organiser une surveillance comparative et traçable.","Argumenter une alerte devant une aggravation clinique."],
+reflex:"Qu'est-ce qui a changé depuis la dernière évaluation ? Conscience, pupilles, motricité, parole, douleur et vomissements doivent être comparés dans le temps.",
+traps:"Confondre état initial rassurant et absence de risque ; oublier l'heure et le mécanisme ; considérer la somnolence comme un simple besoin de sommeil ; oublier de réévaluer après une intervention.",
+pratique:"Les critères d'imagerie, la fréquence des surveillances et les conduites spécifiques dépendent de la situation médicale et des protocoles en vigueur.",
+retain:"Après un traumatisme crânien, l'évolution neurologique compte autant que l'examen initial : observer, comparer, tracer et alerter.",
+case:"Un patient de 24 ans chute à vélo. Deux heures plus tard, il devient plus somnolent et vomit à deux reprises. La priorité est de réévaluer immédiatement son état neurologique, ses constantes et d'alerter devant cette aggravation."
+},
+"Fractures":{
+intro:"Une fracture est une rupture de la continuité d'un os. La prise en charge ne consiste pas seulement à traiter la douleur : il faut rechercher une atteinte vasculo-nerveuse, protéger le membre et prévenir les complications liées au traumatisme ou à l'immobilisation.",
+meca:"Le traumatisme peut être direct ou indirect. Une fracture peut être fermée ou ouverte, déplacée ou non. L'œdème, l'hémorragie locale et la compression des tissus peuvent compromettre la perfusion ou la fonction nerveuse distale.",
+signes:"Douleur, impotence fonctionnelle, déformation, œdème, ecchymose ou raccourcissement peuvent orienter. En distal, rechercher couleur, chaleur, sensibilité, motricité et pouls selon le membre concerné.",
+surv:"Surveiller douleur et tolérance de l'immobilisation, état cutané, œdème et signes vasculo-nerveux distaux. Une douleur disproportionnée ou une dégradation brutale doit faire rechercher une complication.",
+prise:"Installer et protéger le membre selon les consignes, administrer les traitements prescrits, surveiller le dispositif d'immobilisation et accompagner la mobilisation progressive selon prescription. Prévenir les complications du décubitus et de la perte d'autonomie.",
+obj:["Reconnaître les éléments évocateurs d'une fracture.","Évaluer l'état vasculo-nerveux distal.","Prévenir les complications de l'immobilisation."],
+reflex:"Avant et après une immobilisation ou une intervention, comparer la perfusion, la sensibilité et la motricité distales.",
+traps:"Se concentrer uniquement sur la radiographie ; oublier l'évaluation neurovasculaire ; minimiser une douleur nouvelle sous plâtre ou attelle.",
+pratique:"Toute conduite de réduction, immobilisation spécialisée ou reprise d'appui dépend de la prescription et du protocole.",
+retain:"Fracture = douleur et fonction, mais aussi risque vasculo-nerveux et complications liées à l'immobilisation.",
+case:"Après pose d'une attelle, un patient signale une douleur croissante avec fourmillements des doigts. Il faut réévaluer rapidement l'état distal et transmettre sans attendre une aggravation."
+},
+"Sepsis":{
+intro:"Le sepsis correspond à une dysfonction d'organe liée à une réponse inappropriée de l'organisme face à une infection. Pour l'infirmier, l'enjeu majeur est de reconnaître précocement une dégradation clinique et d'accélérer la prise en charge.",
+meca:"Une infection peut déclencher une réponse inflammatoire systémique entraînant des perturbations circulatoires, respiratoires, rénales ou neurologiques. L'évolution peut être rapide vers un état de choc.",
+signes:"Rechercher altération de l'état général, fièvre ou hypothermie, tachycardie, polypnée, désaturation, hypotension, confusion, oligurie ou autres signes de dysfonction d'organe selon le contexte infectieux.",
+surv:"Surveiller constantes, conscience, perfusion périphérique, diurèse, douleur, température et évolution des signes infectieux. Les tendances sont importantes : une aggravation progressive peut être plus informative qu'une valeur isolée.",
+prise:"Alerter selon le degré de gravité et l'organisation du service, réaliser les prélèvements et traitements prescrits dans les délais, surveiller la réponse aux interventions et assurer des transmissions structurées.",
+obj:["Identifier les signes pouvant évoquer une infection compliquée.","Repérer une dysfonction d'organe ou une aggravation.","Comprendre l'urgence d'une prise en charge coordonnée."],
+reflex:"Chez une personne infectée, ne pas regarder uniquement la température : rechercher surtout une altération d'organe et l'évolution des constantes.",
+traps:"Attendre une fièvre obligatoire ; se rassurer devant une seule constante normale ; oublier la diurèse et l'état neurologique ; retarder l'alerte.",
+pratique:"Les prélèvements, antibiotiques, remplissage et autres interventions suivent les prescriptions et protocoles locaux ; l'app ne remplace pas ces procédures.",
+retain:"Infection + dégradation clinique = penser sepsis et rechercher rapidement une dysfonction d'organe.",
+case:"Une patiente fébrile devient confuse, polypnéique et hypotendue. La priorité est l'évaluation immédiate, l'alerte et la mise en œuvre rapide du parcours de prise en charge selon protocole."
+},
+"AVC":{
+intro:"L'AVC est une urgence neurologique. Il peut être ischémique ou hémorragique. La rapidité de reconnaissance et d'orientation est essentielle car les traitements et la récupération dépendent notamment du délai.",
+meca:"L'AVC ischémique résulte d'une interruption de la circulation cérébrale ; l'AVC hémorragique résulte d'un saignement intracrânien. La zone cérébrale atteinte détermine les déficits observés.",
+signes:"Début brutal d'une faiblesse ou paralysie d'un côté, asymétrie faciale, trouble de la parole ou de la compréhension, trouble visuel, perte d'équilibre ou déficit sensitif. Noter précisément l'heure de début ou la dernière heure connue sans symptôme.",
+surv:"Surveiller conscience, langage, motricité, pupilles, constantes, glycémie selon contexte, déglutition et évolution des déficits. Toute aggravation neurologique doit être transmise immédiatement.",
+prise:"Reconnaître les signes, déclencher rapidement l'alerte selon l'organisation locale, sécuriser la personne, ne pas faire boire ou manger avant l'évaluation de la déglutition si elle est altérée, préparer les examens et traitements prescrits.",
+obj:["Reconnaître les principaux signes d'AVC.","Comprendre l'importance de l'heure de début.","Prévenir les complications notamment respiratoires et de déglutition."],
+reflex:"Face à un déficit neurologique brutal : noter l'heure, évaluer rapidement, alerter et surveiller l'évolution.",
+traps:"Oublier l'heure de début ; donner à boire à une personne dysphagique ; attendre une amélioration spontanée ; considérer un symptôme isolé comme bénin.",
+pratique:"Les échelles utilisées et le parcours d'urgence varient selon les établissements. Suivre la procédure locale d'alerte AVC.",
+retain:"AVC = urgence : reconnaître vite, dater précisément, alerter vite et surveiller la déglutition et l'état neurologique.",
+case:"À 10 h 20, une patiente présente soudainement une bouche déviée et une difficulté à parler. L'heure de début doit être immédiatement recherchée et transmise dans l'alerte."
+},
+"Asthme et BPCO":{
+intro:"L'asthme et la BPCO sont deux maladies respiratoires chroniques différentes. L'asthme se caractérise notamment par une obstruction bronchique variable, tandis que la BPCO associe une limitation persistante des débits aériens dans un contexte adapté. En situation aiguë, la priorité est d'évaluer la gravité.",
+meca:"Dans l'asthme, l'inflammation et la bronchoconstriction réduisent le calibre bronchique. Dans la BPCO, l'obstruction est chronique et peut s'aggraver lors d'exacerbations. L'augmentation du travail respiratoire peut conduire à l'épuisement.",
+signes:"Dyspnée, sifflements, toux, oppression thoracique ou augmentation des sécrétions peuvent être présents. Signes de gravité : difficulté à parler, épuisement, altération de conscience, aggravation rapide ou mauvaise tolérance clinique.",
+surv:"Surveiller fréquence respiratoire, saturation selon prescription/contexte, fréquence cardiaque, capacité à parler, tirage, conscience, coloration et réponse au traitement prescrit.",
+prise:"Installer confortablement, rassurer sans retarder l'alerte, administrer les traitements prescrits, surveiller leur efficacité et rechercher une aggravation. L'oxygène et les objectifs de saturation doivent être adaptés au contexte clinique et aux prescriptions.",
+obj:["Différencier les grands mécanismes de l'asthme et de la BPCO.","Reconnaître les signes de gravité respiratoire.","Évaluer la réponse au traitement et l'évolution."],
+reflex:"Une saturation isolée ne suffit pas : regarder aussi le travail respiratoire, la conscience, la parole et la tendance clinique.",
+traps:"Se fier uniquement au chiffre de SpO₂ ; laisser un patient très dyspnéique seul ; oublier la réévaluation après traitement.",
+pratique:"Les cibles de saturation et modalités d'oxygénothérapie doivent suivre le contexte, la prescription et le protocole local.",
+retain:"Respiration = observer le patient avant le chiffre : fréquence, effort, parole, conscience et évolution.",
+case:"Un patient BPCO devient plus dyspnéique et somnolent. Même si la saturation n'a pas brutalement chuté, l'altération neurologique impose une réévaluation et une alerte rapide."
+},
+"Administration sécurisée":{
+intro:"L'administration médicamenteuse est un acte à risque qui nécessite une vérification structurée avant, pendant et après le soin. La sécurité repose sur la concordance entre la personne, le médicament, la prescription, la dose, la voie, le moment et les éléments de surveillance.",
+meca:"Une erreur peut survenir à différentes étapes : prescription, préparation, transcription, stockage, administration ou surveillance. Certains médicaments ont une marge thérapeutique étroite et nécessitent une vigilance renforcée.",
+signes:"Avant administration, vérifier identité, prescription, allergies connues, médicament, dosage, voie, horaire et pertinence clinique. Après administration, rechercher efficacité et effets indésirables attendus ou inhabituels.",
+surv:"La surveillance dépend du médicament : constantes, douleur, conscience, glycémie, saignement, fonction rénale ou autres paramètres pertinents. Tracer l'administration et les événements utiles à la continuité.",
+prise:"Préparer dans un environnement sécurisé, éviter les interruptions autant que possible, effectuer les contrôles requis, expliquer le traitement au patient et ne jamais administrer un médicament en cas de doute non résolu.",
+obj:["Structurer une vérification médicamenteuse complète.","Identifier les risques avant administration.","Relier chaque médicament à sa surveillance et à son effet attendu."],
+reflex:"Si une information essentielle est incohérente ou absente, on s'arrête, on vérifie et on demande clarification avant administration.",
+traps:"Se fier à la boîte sans relire la prescription ; oublier les allergies ; confondre mg et mL ; oublier la surveillance après administration ; administrer malgré un doute.",
+pratique:"Les règles institutionnelles de préparation, double contrôle et traçabilité peuvent préciser les exigences nationales.",
+retain:"Un médicament ne se résume pas à 'donner le comprimé' : vérifier, administrer, surveiller et tracer.",
+case:"Une prescription indique 25 mg mais la présentation disponible est à 50 mg par comprimé. Il faut effectuer le calcul et vérifier la cohérence avant toute administration."
+},
+"Calculs de doses":{
+intro:"Les calculs de doses servent à transformer une prescription en quantité ou débit réellement administrable. Le raisonnement doit rester explicite et comporter des contrôles de cohérence avant administration.",
+meca:"On rencontre notamment des conversions d'unités, des calculs de quantité à prélever, des débits en mL/h et des doses rapportées au poids. Une erreur d'unité peut multiplier ou diviser la dose par 1 000.",
+signes:"Identifier les données connues, l'unité de la prescription, la concentration disponible, le volume total et ce qui est demandé. Vérifier que toutes les grandeurs sont exprimées dans des unités compatibles.",
+surv:"Après calcul, contrôler l'ordre de grandeur, l'unité et la cohérence avec la prescription. Pour une perfusion, vérifier le volume, le temps et le débit obtenu.",
+prise:"Écrire le calcul, effectuer les contrôles prévus et demander un second contrôle lorsque le protocole de l'établissement le prévoit, notamment pour les médicaments à risque.",
+obj:["Convertir correctement les unités usuelles.","Calculer une quantité à administrer ou un débit.","Contrôler un résultat avant administration."],
+reflex:"Je transforme d'abord toutes les données dans des unités compatibles, puis je vérifie si le résultat est plausible.",
+traps:"Mélanger mg et g, mL et L ; oublier un facteur de dilution ; utiliser une formule sans identifier ce qui est demandé ; ne pas contrôler l'ordre de grandeur.",
+pratique:"Exemple : prescription 750 mg, présentation 250 mg/5 mL → volume à administrer = 15 mL. Toujours vérifier la présentation réellement disponible.",
+retain:"Calcul de dose = unités compatibles + formule explicite + résultat avec unité + contrôle de cohérence.",
+case:"Une ampoule contient 500 mg dans 10 mL et la prescription demande 250 mg. Le volume correspondant est 5 mL."
+},
+"Anticoagulants":{
+intro:"Les anticoagulants diminuent la capacité du sang à former un caillot. Leur bénéfice est la prévention ou le traitement d'événements thrombotiques, mais leur principal risque est le saignement.",
+meca:"Les différentes familles n'agissent pas toutes sur les mêmes étapes de la coagulation. Les paramètres de surveillance et les modalités d'administration dépendent du médicament utilisé et de l'indication.",
+signes:"Rechercher ecchymoses inhabituelles, saignements gingivaux ou nasaux, hématurie, selles anormales, hémorragie persistante, céphalées inhabituelles ou altération neurologique selon le contexte.",
+surv:"Surveiller signes de saignement, état clinique, paramètres biologiques lorsqu'ils sont prescrits, fonction rénale pour certains traitements et respect des horaires. Contrôler également les injections si elles sont utilisées.",
+prise:"Respecter strictement la prescription, sécuriser l'administration, informer le patient des signes d'alerte et transmettre tout saignement inhabituel ou chute/traumatisme selon le contexte.",
+obj:["Comprendre le bénéfice et le principal risque des anticoagulants.","Repérer un saignement potentiellement significatif.","Adapter la surveillance au médicament prescrit."],
+reflex:"Sous anticoagulant, toute situation hémorragique inhabituelle doit être caractérisée, surveillée et transmise.",
+traps:"Croire qu'un anticoagulant 'fait saigner normalement' ; oublier le contexte de chute ou traumatisme ; appliquer le même contrôle biologique à toutes les molécules.",
+pratique:"Le paramètre biologique pertinent dépend de la molécule. Ne jamais extrapoler la surveillance d'un anticoagulant à un autre.",
+retain:"Anticoagulant = prévenir la thrombose tout en surveillant activement le risque hémorragique.",
+case:"Un patient anticoagulé chute et présente ensuite une céphalée inhabituelle. La situation nécessite une évaluation et une transmission rapide, même sans saignement visible."
+},
+"Transmissions ciblées":{
+intro:"Les transmissions ciblées permettent de transmettre une information utile, structurée et centrée sur une cible de soins. Elles favorisent la continuité et évitent les informations vagues ou non hiérarchisées.",
+meca:"Une transmission efficace relie une cible à des données observées, aux actions réalisées et aux résultats obtenus. Elle distingue les faits des interprétations et permet au professionnel suivant de comprendre la situation.",
+signes:"Choisir une cible pertinente : douleur, risque, symptôme, événement, problème ou évolution. Décrire les données concrètes : intensité, localisation, heure, contexte, comportement, constantes ou éléments observables.",
+surv:"Après une intervention, préciser le résultat et la réévaluation. Une transmission doit permettre de savoir ce qui a été fait, ce qui reste à surveiller et ce qui doit être poursuivi.",
+prise:"Utiliser une formulation objective, concise et chronologique lorsque nécessaire. Transmettre immédiatement les informations urgentes oralement selon l'organisation, puis assurer la traçabilité adaptée.",
+obj:["Identifier une cible de transmission pertinente.","Distinguer données, actions et résultats.","Rédiger une transmission utile à la continuité des soins."],
+reflex:"Si un collègue reprend la prise en charge dans dix minutes, pourrait-il comprendre ce qui s'est passé et ce qu'il doit surveiller ?",
+traps:"Écrire une interprétation sans donnée ; oublier l'heure ; ne pas mentionner la réévaluation ; confondre transmission ciblée et récit exhaustif de toute la journée.",
+pratique:"Pour une situation urgente, la transmission orale immédiate ne doit pas être remplacée par la seule trace écrite.",
+retain:"Une bonne transmission répond à : qu'est-ce qui se passe ? qu'ai-je observé ? qu'ai-je fait ? quel est le résultat ? que faut-il poursuivre ?",
+case:"Cible : douleur. Données : EVA 7/10 au repos, lombaire, début depuis 1 h. Action : antalgique prescrit administré. Résultat : EVA 3/10 à 45 min."
+},
+"Surveillance clinique":{
+intro:"La surveillance clinique est une démarche dynamique : elle consiste à recueillir des données, les comparer à l'état de référence, repérer les écarts et agir ou transmettre selon leur gravité.",
+meca:"Une valeur isolée peut être peu informative. L'évolution, l'association de plusieurs signes et le contexte du patient permettent de mieux apprécier la gravité et la réponse aux interventions.",
+signes:"Observer conscience, respiration, circulation, douleur, température, élimination, état cutané, alimentation/hydratation et tout signe spécifique à la pathologie ou au traitement.",
+surv:"Définir ce qui doit être surveillé, à quelle fréquence, avec quels outils et quels critères d'alerte. Tracer les données et comparer les tendances.",
+prise:"Organiser la surveillance selon les priorités, réévaluer après intervention et escalader l'alerte si la situation se dégrade ou si les résultats dépassent les seuils définis.",
+obj:["Construire une surveillance adaptée à une situation.","Interpréter une évolution plutôt qu'une valeur isolée.","Déclencher une alerte argumentée."],
+reflex:"Je me demande toujours : quel était l'état de départ, qu'est-ce qui change et quelle conséquence ce changement peut-il avoir ?",
+traps:"Mesurer sans interpréter ; noter une constante sans unité ; oublier la réévaluation ; appliquer une fréquence identique à toutes les situations.",
+pratique:"Les fréquences et seuils de surveillance doivent être adaptés à la situation et aux protocoles du service.",
+retain:"Surveiller, ce n'est pas seulement mesurer : c'est mesurer, comparer, interpréter, réévaluer et transmettre.",
+case:"Une fréquence respiratoire passe de 18 à 30/min chez un patient postopératoire. Même si la saturation reste correcte, l'évolution doit être évaluée et contextualisée."
+},
+"Oxygénothérapie":{
+intro:"L'oxygénothérapie consiste à administrer de l'oxygène pour corriger ou prévenir une hypoxémie selon une indication médicale. Elle nécessite un dispositif adapté et une surveillance de la réponse clinique.",
+meca:"L'oxygène augmente la fraction inspirée d'oxygène. Le résultat dépend du dispositif, du débit, de la ventilation du patient et de la cause de l'hypoxémie. Chez certains patients, notamment dans certaines BPCO, la cible doit être individualisée.",
+signes:"Évaluer dyspnée, fréquence respiratoire, travail respiratoire, conscience, coloration et saturation lorsque celle-ci est pertinente. La tolérance du dispositif compte également.",
+surv:"Contrôler la réponse au traitement, l'état cutané aux points de contact, la sécurité du matériel et les paramètres prescrits. Une aggravation clinique malgré l'oxygène doit conduire à une réévaluation.",
+prise:"Installer correctement le dispositif prescrit, expliquer le soin, respecter les règles de sécurité incendie et surveiller la réponse. Ne pas modifier une cible ou un débit prescrit sans cadre adapté.",
+obj:["Identifier les objectifs de l'oxygénothérapie.","Connaître les principes de surveillance d'un patient oxygéné.","Repérer une mauvaise tolérance ou une aggravation."],
+reflex:"Le chiffre de saturation ne remplace jamais l'observation clinique du travail respiratoire et de la conscience.",
+traps:"Augmenter systématiquement le débit devant une désaturation sans rechercher la cause ; oublier la sécurité incendie ; négliger les lésions cutanées.",
+pratique:"Le dispositif, le débit et la cible sont définis selon la prescription, l'état clinique et les protocoles.",
+retain:"Oxygène = indication + dispositif adapté + cible individualisée + surveillance clinique.",
+case:"Un patient sous oxygène devient plus somnolent et plus dyspnéique. La priorité est une réévaluation clinique et une alerte, pas uniquement une augmentation automatique du débit."
+},
+"Insuffisance rénale":{
+intro:"L'insuffisance rénale correspond à une diminution de la capacité des reins à assurer leurs fonctions, notamment filtration, équilibre hydro-électrolytique et élimination de certains déchets et médicaments. Elle peut être aiguë ou chronique.",
+meca:"Une baisse de filtration peut entraîner accumulation de déchets, troubles hydro-électrolytiques et déséquilibre hydrique. Certains médicaments nécessitent une adaptation en fonction de la fonction rénale.",
+signes:"Variation de diurèse, œdèmes, fatigue, nausées, troubles de conscience ou signes biologiques peuvent apparaître selon le stade et la cause. L'absence de symptômes n'exclut pas une atteinte.",
+surv:"Surveiller diurèse, poids, entrées-sorties selon indication, pression artérielle, œdèmes et résultats biologiques prescrits. Rechercher les médicaments potentiellement concernés par une adaptation.",
+prise:"Respecter les prescriptions de bilan et de traitement, surveiller hydratation et élimination selon le projet de soins, prévenir les complications et transmettre toute modification significative.",
+obj:["Distinguer les grandes caractéristiques de l'IRA et de l'IRC.","Surveiller hydratation, diurèse et signes de complications.","Comprendre l'impact rénal sur certains médicaments."],
+reflex:"Une variation de diurèse ou de poids peut être une donnée clinique importante lorsqu'elle est replacée dans son contexte.",
+traps:"Confondre insuffisance rénale et absence totale d'urines ; interpréter un bilan sans contexte ; oublier l'impact sur certains médicaments.",
+pratique:"Les adaptations posologiques et objectifs hydriques sont médicalement contextualisés et ne doivent pas être déduits d'une seule valeur.",
+retain:"Rein = filtration + équilibre hydrique/électrolytique + élimination : surveiller la tendance clinique et biologique.",
+case:"Une personne hospitalisée voit sa diurèse diminuer nettement sur plusieurs heures. La donnée doit être vérifiée, contextualisée et transmise selon les critères du service."
+},
+"Approche palliative":{
+intro:"Les soins palliatifs visent à améliorer la qualité de vie d'une personne confrontée à une maladie grave ou potentiellement mortelle, en prévenant et soulageant les souffrances et en prenant en compte les dimensions physiques, psychologiques, sociales et spirituelles.",
+meca:"L'approche palliative ne signifie pas l'arrêt automatique de tous les traitements. Elle repose sur un projet de soins proportionné aux objectifs de la personne et sur une évaluation régulière des symptômes et de la qualité de vie.",
+signes:"Douleur, dyspnée, anxiété, nausées, agitation, fatigue, troubles du sommeil et souffrance des proches peuvent nécessiter une prise en charge. Toujours rechercher ce qui est important pour la personne.",
+surv:"Évaluer régulièrement symptômes, confort, niveau de conscience selon contexte, alimentation/hydratation, élimination, anxiété et vécu des proches. La surveillance est individualisée.",
+prise:"Favoriser le confort, la présence, l'écoute et la coordination pluriprofessionnelle. Administrer les traitements prescrits, évaluer leur effet et accompagner la personne et ses proches avec une communication adaptée.",
+obj:["Définir les objectifs d'une démarche palliative.","Évaluer les symptômes et le confort.","Adapter la communication avec la personne et les proches."],
+reflex:"Avant de chercher uniquement à 'corriger une valeur', demander : quel est l'objectif de soin pour cette personne aujourd'hui ?",
+traps:"Assimiler soins palliatifs à abandon des soins ; imposer une alimentation ou hydratation sans considérer le projet ; oublier les proches ; utiliser un vocabulaire technique sans vérifier la compréhension.",
+pratique:"Les décisions concernant limitations ou arrêts de traitements et sédation relèvent d'un cadre légal, médical et collégial précis.",
+retain:"Palliatif = qualité de vie, soulagement, proportionnalité, écoute et projet de soins individualisé.",
+case:"Une personne en phase avancée exprime une dyspnée importante. L'équipe évalue le symptôme, met en œuvre les mesures prescrites de confort et réévalue régulièrement leur efficacité."
+},
+"Question de recherche":{
+intro:"Une question de recherche transforme une interrogation professionnelle en problème suffisamment précis pour être exploré de manière méthodique. Une bonne question est pertinente, faisable et cohérente avec la population, le contexte et le phénomène étudié.",
+meca:"La question guide la recherche documentaire, le choix des mots-clés, la sélection des sources et la méthode. Une question trop large produit une littérature difficile à exploiter ; une question trop étroite peut manquer de données.",
+signes:"Identifier le problème professionnel, la population concernée, le contexte, l'intervention ou le phénomène et, lorsque pertinent, le résultat recherché. Distinguer question clinique, question de pratique et question de recherche.",
+surv:"Vérifier régulièrement que les sources répondent réellement à la question et ne pas déplacer la problématique en fonction du premier article trouvé.",
+prise:"Formuler plusieurs versions, tester les mots-clés, rechercher les concepts associés et vérifier la faisabilité : accès aux données, temps, population, éthique et ressources.",
+obj:["Transformer un problème professionnel en question claire.","Identifier les concepts et mots-clés associés.","Évaluer la faisabilité d'un projet de recherche."],
+reflex:"Une bonne question doit permettre de savoir exactement quelles données je dois chercher et pourquoi.",
+traps:"Confondre thème et question ; faire une question trop générale ; choisir la méthode avant d'avoir défini le problème.",
+pratique:"La formulation finale dépend du type d'étude et de la méthodologie retenue.",
+retain:"Une question de recherche utile est précise, pertinente, faisable et guide directement la recherche documentaire.",
+case:"Thème : fatigue des étudiants en stage. Question plus exploitable : quels facteurs organisationnels sont associés à la fatigue ressentie par les étudiants infirmiers pendant leurs stages ?"
+},
+"Éducation thérapeutique":{
+intro:"L'éducation thérapeutique aide une personne vivant avec une maladie chronique à acquérir ou maintenir des compétences pour gérer sa santé et sa vie quotidienne. Elle se construit avec elle et ne consiste pas seulement à transmettre des informations.",
+meca:"Le processus part des besoins, connaissances, représentations, ressources et difficultés de la personne. Les objectifs sont négociés, les compétences sont travaillées puis évaluées et réajustées.",
+signes:"Explorer ce que la personne sait déjà, ce qu'elle veut apprendre, ses habitudes, ses difficultés, ses ressources et les obstacles à l'adhésion. Vérifier sa compréhension plutôt que supposer qu'un conseil a été compris.",
+surv:"Évaluer les compétences acquises et leur utilisation en situation réelle. Rechercher les obstacles persistants et adapter les objectifs.",
+prise:"Utiliser une communication adaptée, des objectifs réalistes et des méthodes actives : démonstration, reformulation, entraînement ou résolution de problème selon le besoin.",
+obj:["Distinguer information et éducation thérapeutique.","Identifier les besoins et compétences de la personne.","Construire et évaluer un objectif éducatif réaliste."],
+reflex:"Avant de dire 'il faut', demander ce que la personne sait, fait déjà et souhaite réellement améliorer.",
+traps:"Faire un cours magistral au patient ; fixer des objectifs irréalistes ; confondre bonne réponse à l'entretien et compétence réelle.",
+pratique:"L'ETP s'inscrit dans un programme et un cadre organisationnel adaptés lorsqu'elle est formalisée comme telle.",
+retain:"ETP = partir de la personne, construire avec elle, entraîner des compétences et évaluer leur transfert dans la vie quotidienne.",
+case:"Un patient diabétique connaît la théorie mais oublie régulièrement son traitement. L'objectif éducatif doit explorer les causes et travailler une stratégie réaliste plutôt que répéter simplement la prescription."
+}
+};
+function buildFicheDetails(title,description){
+ const r=richFiches[title];
+ if(r)return r;
+ const base=ficheTexts[title]||description||`Cette fiche présente les notions essentielles de ${title.toLowerCase()} et leur application au raisonnement infirmier.`;
+ const lower=title.toLowerCase();
+ let family='clinique';
+ if(/communication|relation|équipe|encadrement|leadership|secret|consentement|éthique|refus/.test(lower)) family='relationnel';
+ if(/recherche|publication|données|méthodologie|lecture|question/.test(lower)) family='scientifique';
+ if(/promotion|dépistage|prévention|éducation/.test(lower)) family='prevention';
+ const obj=family==='relationnel'?[`Définir les notions professionnelles liées à ${lower}.`,`Adapter sa posture à une situation concrète.`,`Transmettre et argumenter une décision professionnelle.`]:family==='scientifique'?[`Définir les concepts méthodologiques de ${lower}.`,`Identifier les éléments permettant d'évaluer la qualité d'une information.`,`Appliquer la méthode à une situation professionnelle.`]:family==='prevention'?[`Définir les objectifs de ${lower}.`,`Identifier les facteurs de risque et les besoins de la personne.`,`Construire une action adaptée et évaluable.`]:[`Définir les notions essentielles de ${lower}.`,`Identifier les signes, risques ou éléments de surveillance importants.`,`Relier les données cliniques à une action et à une réévaluation.`];
+ return {intro:base,meca:`Comprendre ${lower} nécessite de relier les mécanismes, les facteurs de risque et les conséquences possibles à la situation de la personne. Le contexte clinique modifie toujours l'interprétation des données.`,signes:`Repérer les données pertinentes, leur évolution et les éléments qui doivent être comparés à l'état habituel de la personne. Distinguer les faits observés des interprétations.`,surv:`Définir ce qui doit être surveillé, à quelle fréquence et quels changements doivent conduire à une réévaluation ou une transmission.`,prise:`Mettre en œuvre les interventions relevant du rôle infirmier et des prescriptions/protocoles, expliquer au patient, coordonner avec l'équipe et réévaluer les résultats.`,obj,reflex:`Recueillir les données pertinentes, prioriser, agir dans son champ de compétence, surveiller la réponse et réévaluer.`,traps:`Réciter une conduite sans tenir compte du contexte, oublier une contre-indication ou un risque, ou ne pas réévaluer après l'intervention.`,pratique:`Les prescriptions, seuils, conduites d'urgence et procédures doivent toujours être vérifiés avec les recommandations actualisées et les protocoles de l'établissement.`,retain:`${title} : comprendre le principe, savoir le reconnaître en situation, relier les données à une action infirmière puis réévaluer.`,case:`Situation de révision : devant une modification de l'état de la personne, recueillir les données utiles, identifier la priorité, agir dans son champ de compétence, puis réévaluer et transmettre.`};
+}
+function getFicheData(){return ficheCatalog[document.getElementById('ficheYear')?.value||'2A'];}
+function changeFicheYear(){renderFicheCategories();}
+function renderFicheCategories(){const cfg=getFicheData(),box=document.getElementById("ficheCategories"),detail=document.getElementById("ficheDetail");detail.style.display="none";box.style.display="grid";document.getElementById('ficheFrameworkInfo').textContent=cfg.info;box.innerHTML=Object.entries(cfg.cats).map(([ue,items])=>`<button class="ficheCat" onclick='openFicheCategory(${JSON.stringify(ue).replace(/'/g,"&amp;#39;")})'><div class="ue">${ue}</div><h3>${items.length} chapitres</h3><p>${items.slice(0,3).map(x=>x[0]).join(" • ")}…</p></button>`).join("");}
+function openFicheCategory(ue){const cfg=getFicheData(),box=document.getElementById("ficheCategories"),detail=document.getElementById("ficheDetail");box.style.display="none";detail.style.display="block";detail.innerHTML=`<div class="ficheBreadcrumb"><span>Bibliothèque</span><b>›</b><b>${ue}</b></div><div class="sectionTitle"><h2>${ue}</h2><button class="ficheBack" onclick="renderFicheCategories()">← Toutes les UE</button></div><div class="list">${cfg.cats[ue].map((x,i)=>`<button class="listItem" style="text-align:left" onclick='openFiche(${JSON.stringify(ue).replace(/'/g,"&amp;#39;")},${i})'><b>${x[2]} ${x[0]}</b><br><small>${x[1]}</small></button>`).join("")}</div>`;}
+function openFiche(ue,i){
+ const cfg=getFicheData(),x=cfg.cats[ue][i],detail=document.getElementById('ficheDetail'),d=buildFicheDetails(x[0],x[1]);
+ detail.innerHTML=`<div class="ficheBreadcrumb"><span>Bibliothèque</span><b>›</b><b>${ue}</b><b>›</b><b>${x[0]}</b></div><div class="sectionTitle"><h2>${x[2]} ${x[0]}</h2><button class="ficheBack" onclick='openFicheCategory(${JSON.stringify(ue).replace(/'/g,"&amp;#39;")})'>← Chapitres</button></div>
+ <div class="qcard"><div class="meta">${ue} • Référentiel ${cfg.framework}</div><h3>${x[1]}</h3>
+ <div class="courseBlock"><h4>📖 Apprendre</h4><p>${d.intro}</p></div>
+ <div class="courseBlock"><h4>🧬 Comprendre</h4><p>${d.meca}</p></div>
+ <div class="courseBlock"><h4>🔎 Reconnaître</h4><p>${d.signes}</p></div>
+ <div class="courseBlock"><h4>📊 Surveiller</h4><p>${d.surv}</p></div>
+ <div class="courseBlock"><h4>👩‍⚕️ Prise en charge infirmière</h4><p>${d.prise}</p></div>
+ <div class="courseBlock"><h4>🎯 Objectifs de révision</h4><ul>${d.obj.map(v=>`<li>${v}</li>`).join('')}</ul></div>
+ <div class="courseBlock"><h4>👩‍⚕️ Réflexe infirmier</h4><p>${d.reflex}</p></div>
+ <div class="courseBlock"><h4>⚠️ Pièges de partiel</h4><p>${d.traps}</p></div>
+ <div class="courseBlock"><h4>📝 En pratique</h4><p>${d.pratique}</p></div>
+ <div class="hero" style="margin-top:14px"><div class="eyebrow">🧠 À retenir</div><p style="margin:8px 0 0"><b>${d.retain}</b></p></div>
+ <div class="qcard" style="margin-top:14px;background:#151a23"><div class="eyebrow">🎓 Passe à la pratique</div><h3 style="margin:7px 0">Teste ce que tu viens d'apprendre</h3><p class="sub">La fiche est le point de départ : vérifie ensuite tes connaissances avec des questions et une situation clinique.</p>
+ <div class="grid" style="margin-top:12px"><button class="btn" onclick='startFicheQCM(${JSON.stringify(ue)},${JSON.stringify(x[0])})'>📝 QCM associés</button><button class="btn secondary" onclick='openAssociatedCase(${JSON.stringify(ue)},${JSON.stringify(x[0])})'>🏥 Cas clinique</button></div></div>
+ <div id="fichePractice" style="margin-top:14px"></div>
+ </div>`;
+}
+
+const chapterBanks={
+  'UE 2.5|Insuffisance respiratoire aiguë':[
+    {q:'Chez un patient en détresse respiratoire, quel signe doit faire rechercher une aggravation immédiate ?',a:['Une augmentation du travail respiratoire avec altération de la conscience','Une faim légère avant le repas','Une douleur ancienne stable','Une envie de dormir habituelle'],c:0,e:'L’augmentation du travail respiratoire et l’altération neurologique peuvent témoigner d’une aggravation et imposent une réévaluation rapide.'},
+    {q:'Pourquoi comparer la fréquence respiratoire actuelle aux valeurs habituelles du patient ?',a:['Pour apprécier l’évolution et détecter une dégradation','Pour remplacer la mesure de la SpO₂','Pour décider seul d’un traitement','Pour éviter toute transmission'],c:0,e:'La tendance des paramètres est aussi importante que leur valeur isolée.'},
+    {q:'Quelle observation complète utilement une mesure de SpO₂ ?',a:['La fréquence respiratoire et les signes de lutte respiratoire','La couleur des yeux','Le dernier repas uniquement','La taille du patient'],c:0,e:'La SpO₂ doit être interprétée avec le contexte clinique et notamment la respiration.'},
+    {q:'Un patient dyspnéique devient somnolent. Quelle attitude est la plus adaptée ?',a:['Réévaluer immédiatement, surveiller les fonctions vitales et alerter selon la gravité','Le laisser dormir sans surveillance','Lui faire marcher quelques mètres','Reporter l’évaluation à la relève'],c:0,e:'Une modification de la conscience associée à une détresse respiratoire est un signe d’alerte.'},
+    {q:'Quel piège de partiel faut-il éviter face à une SpO₂ basse ?',a:['Se focaliser sur le chiffre sans évaluer le patient et son évolution','Associer la saturation à la clinique','Surveiller l’évolution','Transmettre une aggravation'],c:0,e:'Un chiffre isolé ne remplace jamais l’évaluation clinique globale.'}
+  ],
+  'UE 2.8|AVC':[
+    {q:'Face à un déficit neurologique brutal, quelle donnée temporelle est essentielle ?',a:['L’heure de début des symptômes ou la dernière heure connue normale','La date du prochain rendez-vous','Le poids d’il y a six mois','L’heure du dernier repas'],c:0,e:'La temporalité des symptômes est déterminante dans l’orientation urgente d’une suspicion d’AVC.'},
+    {q:'Quel signe est particulièrement évocateur d’un déficit neurologique focal ?',a:['Une faiblesse brutale d’un côté du corps avec trouble de la parole','Une fatigue ancienne identique chaque soir','Une douleur musculaire après le sport','Une soif isolée'],c:0,e:'Un déficit focal brutal doit faire évoquer une urgence neurologique.'},
+    {q:'Pourquoi ne faut-il pas faire manger ou boire systématiquement une personne suspecte d’AVC ?',a:['Parce qu’un trouble de la déglutition peut exposer à une fausse route','Parce que l’eau aggrave toujours l’AVC','Parce qu’un patient neurologique ne doit jamais boire','Parce que la faim améliore les symptômes'],c:0,e:'Une dysphagie peut être présente après un AVC ; l’alimentation et les boissons doivent être sécurisées selon l’évaluation et les consignes de prise en charge.'},
+    {q:'Quelle transmission est la plus utile ?',a:['Décrire précisément les signes, leur heure d’apparition et leur évolution','Écrire seulement « AVC probable »','Attendre la relève','Décrire uniquement la tension artérielle'],c:0,e:'Les signes observés, la chronologie et l’évolution sont essentiels à transmettre.'},
+    {q:'Quel comportement est inadapté devant une aggravation neurologique ?',a:['Attendre pour voir si les symptômes disparaissent avant de transmettre','Réévaluer rapidement','Alerter selon la gravité','Surveiller les fonctions vitales'],c:0,e:'Une aggravation neurologique brutale nécessite une réévaluation et une alerte rapide, pas une attente passive.'}
+  ],
+  'UE 2.11|Médicaments':[
+    {q:'Quel élément doit être vérifié avant toute administration médicamenteuse ?',a:['L’identité du patient et la concordance avec la prescription','La couleur préférée du patient','Son activité physique de la semaine','Son dernier achat en pharmacie'],c:0,e:'L’identitovigilance et la concordance avec la prescription font partie des contrôles de sécurité.'},
+    {q:'Pourquoi vérifier la voie d’administration ?',a:['Parce qu’un même médicament peut avoir des modalités d’administration différentes selon sa voie','Parce que la voie ne change jamais rien','Uniquement pour remplir le dossier','Pour choisir le repas du patient'],c:0,e:'La voie conditionne la préparation, l’administration et parfois la surveillance.'},
+    {q:'Après administration d’un médicament à risque, quelle démarche est pertinente ?',a:['Surveiller l’efficacité et rechercher les effets indésirables attendus ou inhabituels','Ne plus observer le patient','Modifier seul la dose si l’effet semble insuffisant','Attendre systématiquement le lendemain'],c:0,e:'La surveillance post-administration permet d’évaluer efficacité et tolérance.'},
+    {q:'Que faire en cas de discordance entre prescription et préparation ?',a:['Suspendre l’administration et vérifier avec la source compétente avant d’administrer','Administrer quand même','Demander au patient de choisir','Modifier soi-même la prescription'],c:0,e:'Une discordance doit être clarifiée avant administration ; il ne faut pas improviser une prescription.'},
+    {q:'Quel est un piège classique lors d’un calcul de dose ?',a:['Confondre mg, g, mL ou concentration après reconstitution','Vérifier les unités','Contrôler le résultat','Comparer au matériel disponible'],c:0,e:'Les erreurs d’unités ou de concentration sont des causes classiques d’erreurs de calcul.'}
+  ],
+  'UE 4.3|Transmissions':[
+    {q:'Quelle donnée doit apparaître dans une transmission clinique utile ?',a:['Des observations précises et datées, les actions réalisées et l’évolution','Une opinion personnelle sans observation','Uniquement un diagnostic supposé','Une phrase vague comme « patient pas bien »'],c:0,e:'Une transmission utile doit permettre à un autre professionnel de comprendre la situation et son évolution.'},
+    {q:'Pourquoi distinguer faits observés et interprétation ?',a:['Pour éviter de présenter une hypothèse comme une donnée certaine','Pour rendre la transmission plus longue','Pour éviter les constantes','Parce qu’un diagnostic n’est jamais utile'],c:0,e:'Distinguer observation et interprétation améliore la fiabilité de la transmission.'},
+    {q:'Après une intervention, que faut-il idéalement transmettre ?',a:['L’intervention, son résultat et les éléments nécessitant une poursuite de surveillance','Seulement l’intervention','Seulement la plainte initiale','Rien si le patient va mieux'],c:0,e:'La réponse du patient à l’intervention permet d’assurer la continuité des soins.'},
+    {q:'Quelle transmission est la plus objective ?',a:['« À 14 h, FR 28/min, SpO₂ 91 %, patient dyspnéique au repos »','« Patient très bizarre »','« Je pense qu’il va mal » sans donnée','« Il est sûrement en OAP » sans observation'],c:0,e:'Les valeurs et signes observables sont plus utiles que les jugements vagues.'},
+    {q:'Quel piège faut-il éviter ?',a:['Reporter une information urgente à la fin du poste','Transmettre immédiatement une aggravation','Tracer les éléments pertinents','Réévaluer après intervention'],c:0,e:'Une information urgente doit être transmise sans attendre la fin du poste.'}
+  ]
+};
+
+function buildChapterQCM(ue,title,yearOverride){
+ const year=yearOverride||document.getElementById('ficheYear')?.value||'2A';
+ const cat=ficheCatalog[year]?.cats?.[ue]||[];
+ const item=cat.find(x=>x[0]===title);
+ const d=buildFicheDetails(title,item?.[1]||title);
+ const T=title.toLowerCase();
+ const qs=[];
+ const add=(q,a,c,e,difficulty='Intermédiaire',why)=>qs.push({q,a,c,e,difficulty,why});
+
+ // Banque spécifique : on privilégie des situations réellement rencontrées en IFSI.
+ if(/avc/.test(T)){
+  add('Une patiente présente brutalement une faiblesse du bras droit et un trouble de la parole. Quelle donnée faut-il rechercher en priorité ?',['L’heure de début des signes ou la dernière heure connue normale','La quantité de sommeil de la nuit précédente','Le poids habituel de la patiente','La date de son prochain rendez-vous'],0,'La chronologie est déterminante dans la prise en charge d’un AVC aigu.','Difficile');
+  add('Chez une personne suspecte d’AVC, quelle proposition est la moins adaptée avant évaluation de la déglutition ?',['Lui donner à boire pour vérifier si elle avale correctement','Surveiller l’état neurologique','Alerter rapidement selon la procédure','Tracer l’évolution des signes'],0,'Un trouble de déglutition peut être associé à l’AVC : faire boire sans évaluation expose à un risque de fausse route.','Difficile');
+  add('Quel changement neurologique doit faire réévaluer immédiatement la situation ?',['Une baisse du niveau de conscience ou une aggravation d’un déficit','Une demande de couverture supplémentaire','Une absence de douleur','Une température stable'],0,'Une aggravation neurologique est un signal d’alerte majeur.','Difficile');
+ } else if(/traumatisme crânien/.test(T)){
+  add('Après un traumatisme crânien, quel ensemble de données est particulièrement pertinent ?',['Conscience, pupilles, motricité, céphalées et vomissements','Uniquement la température','Uniquement la douleur du membre inférieur','Le poids et la taille'],0,'La surveillance neurologique recherche notamment une aggravation secondaire.','Difficile');
+  add('Quelle évolution après un traumatisme crânien doit être considérée comme préoccupante ?',['Une baisse du niveau de conscience ou l’apparition de nouveaux signes neurologiques','Une demande de repas','Une température normale','Une absence de douleur'],0,'Toute aggravation neurologique doit être évaluée et transmise rapidement.','Difficile');
+ } else if(/fractures/.test(T)){
+  add('Après immobilisation d’une fracture, quelle surveillance est particulièrement importante ?',['La couleur, la chaleur, la sensibilité et la motricité du membre distal','Uniquement la température corporelle','Uniquement l’appétit','La qualité du sommeil'],0,'La surveillance neurovasculaire distale permet de repérer une complication compressive ou vasculaire.','Difficile');
+  add('Un patient porteur d’une attelle décrit des doigts froids et engourdis. Quelle attitude est prioritaire ?',['Réévaluer rapidement l’état neurovasculaire et alerter selon la situation','Attendre la relève','Faire marcher le patient','Ignorer si la douleur est faible'],0,'Froid, troubles sensitifs ou moteurs peuvent traduire une complication et nécessitent une évaluation.','Difficile');
+ } else if(/sepsis/.test(T)){
+  add('Quel ensemble doit faire rechercher une aggravation infectieuse avec défaillance d’organe ?',['Altération de l’état général, tachypnée, confusion, hypotension ou oligurie selon le contexte','Uniquement une douleur ancienne','Une température normale isolée','Une augmentation de l’appétit'],0,'Le sepsis se raisonne sur l’infection associée à une dysfonction d’organe et à l’évolution clinique.','Difficile');
+  add('Face à une suspicion de sepsis, quel réflexe est le plus pertinent ?',['Évaluer rapidement les paramètres, rechercher les signes de défaillance et alerter selon protocole','Attendre plusieurs heures pour confirmer','Faire boire systématiquement','Se limiter à noter la température'],0,'La rapidité d’évaluation et d’alerte est essentielle devant une dégradation potentielle.','Difficile');
+ } else if(/calculs de doses/.test(T)){
+  add('Prescription : 500 mg. Le flacon doit être reconstitué. Quelle étape vient avant le calcul du volume ?',['Vérifier la concentration finale et les unités après reconstitution','Diviser immédiatement 500 par 1','Préparer la seringue avant de vérifier le flacon','Arrondir le résultat sans vérifier les unités'],0,'Sans concentration finale fiable, le volume à administrer ne peut pas être calculé correctement.','Difficile');
+  add('Prescription : 250 mg. Solution disponible : 50 mg/mL. Quel volume correspond à la prescription ?',['5 mL','2 mL','10 mL','25 mL'],0,'Volume = dose prescrite ÷ concentration = 250 ÷ 50 = 5 mL.','Difficile');
+  add('Une perfusion de 500 mL doit passer en 5 heures. Quel débit horaire correspond ?',['100 mL/h','50 mL/h','125 mL/h','250 mL/h'],0,'Débit = volume ÷ durée = 500 ÷ 5 = 100 mL/h.','Difficile');
+  add('Quel contrôle est le plus pertinent après un calcul de dose ?',['Vérifier unités, concentration, ordre de grandeur et cohérence avec la prescription','Vérifier uniquement le chiffre final','Demander au patient de choisir le volume','Modifier la prescription si le résultat paraît peu pratique'],0,'Un calcul sécurisé se contrôle à plusieurs niveaux avant administration.','Difficile');
+ } else if(/anticoagulants/.test(T)){
+  add('Quel signe chez une personne anticoagulée doit être transmis rapidement ?',['Une céphalée inhabituelle après une chute','Une faim habituelle','Une peau sèche ancienne','Une fatigue légère inchangée'],0,'Après un traumatisme, une céphalée inhabituelle sous anticoagulant peut signaler une complication hémorragique et doit être évaluée.','Difficile');
+  add('Quelle affirmation est la plus juste concernant la surveillance des anticoagulants ?',['Elle dépend de la molécule et du contexte ; il ne faut pas appliquer la même surveillance à tous','Tous nécessitent exactement le même bilan biologique','Aucune surveillance n’est utile si le patient va bien','Seul le poids doit être surveillé'],0,'Les modalités de surveillance varient selon le traitement et la situation.','Intermédiaire');
+ } else if(/dépression/.test(T)){
+  add('Chez une personne présentant une dépression, quelle donnée doit être recherchée si le contexte le justifie ?',['La présence d’idées suicidaires et leur niveau de risque','Uniquement la qualité de son alimentation','Son groupe sanguin','Sa pointure'],0,'Le risque suicidaire doit être recherché avec une posture calme et directe lorsque le contexte le justifie.','Difficile');
+  add('Quelle attitude relationnelle est la plus adaptée face à une personne très ralentie et triste ?',['Écouter, laisser un temps de réponse adapté et rechercher les besoins et les risques','Multiplier les injonctions pour la faire réagir','Minimiser ses propos','Changer systématiquement de sujet'],0,'La posture infirmière associe écoute, observation, évaluation du risque et respect du rythme de la personne.','Intermédiaire');
+ } else if(/crise suicidaire/.test(T)){
+  add('Dans l’évaluation d’une crise suicidaire, quel élément est particulièrement important ?',['Le scénario envisagé, les moyens disponibles, l’intention et la temporalité','Uniquement l’âge','Uniquement la température','La préférence alimentaire'],0,'L’évaluation du risque repose notamment sur l’intention, les moyens, le scénario, la temporalité et les facteurs de protection.','Difficile');
+  add('Devant un risque suicidaire important, quelle attitude est la plus adaptée ?',['Sécuriser la personne, ne pas la laisser seule si nécessaire et mobiliser rapidement l’équipe','Reporter l’évaluation à la semaine suivante','Laisser la personne seule pour respecter son autonomie sans évaluer le risque','Éviter de poser directement la question du suicide'],0,'La sécurité et la mobilisation de l’équipe sont prioritaires lorsque le risque est important.','Difficile');
+ } else if(/asthme et bpco/.test(T)){
+  add('Quel signe chez un patient dyspnéique est particulièrement préoccupant ?',['Somnolence, épuisement ou difficulté à parler','Une légère sécheresse cutanée','Une faim accrue','Une douleur ancienne stable'],0,'Somnolence, épuisement ou difficulté à parler peuvent témoigner d’une aggravation respiratoire.','Difficile');
+  add('Pourquoi faut-il réévaluer après un traitement bronchodilatateur prescrit ?',['Pour vérifier la réponse clinique et repérer une aggravation persistante','Pour confirmer automatiquement le diagnostic','Pour éviter toute surveillance ultérieure','Uniquement pour compléter le dossier'],0,'La réponse au traitement fait partie du raisonnement clinique.','Intermédiaire');
+ } else if(/oxygénothérapie/.test(T)){
+  add('Chez un patient sous oxygène, quel élément ne doit jamais être interprété isolément ?',['La SpO₂, qui doit être mise en relation avec l’état clinique et la cible prescrite','Le prénom du patient','La date de naissance','Le numéro de chambre'],0,'La saturation est une donnée importante mais ne remplace pas l’évaluation du travail respiratoire et de la conscience.','Intermédiaire');
+  add('Quelle situation impose une réévaluation rapide plutôt qu’une simple augmentation automatique du débit ?',['Un patient qui devient somnolent et plus dyspnéique malgré l’oxygène','Une saturation stable dans la cible','Un patient confortable','Une demande de couverture'],0,'Une aggravation clinique malgré l’oxygène nécessite de rechercher la cause et d’alerter selon la situation.','Difficile');
+ } else if(/insuffisance cardiaque/.test(T)){
+  add('Quel élément évoque particulièrement une congestion chez une personne insuffisante cardiaque ?',['Une prise de poids rapide associée à des œdèmes et une dyspnée croissante','Une douleur ancienne du genou','Une température normale isolée','Une amélioration de l’appétit'],0,'Une prise de poids rapide peut traduire une rétention hydrique dans ce contexte.','Difficile');
+  add('Un patient insuffisant cardiaque est très dyspnéique au repos et ne supporte pas le décubitus. Quelle priorité ?',['Installer en position demi-assise, surveiller et alerter selon la gravité','L’allonger complètement à plat','Le faire marcher pour tester sa tolérance','Limiter la surveillance'],0,'La position demi-assise peut améliorer le confort respiratoire et la situation impose une évaluation rapide.','Difficile');
+ } else if(/transmissions ciblées/.test(T)){
+  add('Quelle transmission est la plus objective ?',['« À 14 h, FR 28/min, SpO₂ 91 %, dyspnée au repos »','« Patient très bizarre »','« Je pense qu’il va mal » sans donnée','« Il est sûrement en OAP » sans observation'],0,'Une transmission utile privilégie les faits observables et datés.','Intermédiaire');
+  add('Après une intervention, que faut-il idéalement transmettre ?',['L’action réalisée, le résultat obtenu et ce qui doit être poursuivi ou surveillé','Uniquement l’action','Uniquement la plainte initiale','Rien si le patient va mieux'],0,'La réévaluation permet d’assurer la continuité des soins.','Intermédiaire');
+ } else if(/démarche clinique/.test(T)){
+  add('Quel enchaînement correspond le mieux à une démarche clinique ?',['Données → analyse → problèmes/risques → objectifs → interventions → évaluation','Diagnostic médical → intervention sans données → fin','Intervention → problème → données','Transmission → diagnostic → absence d’évaluation'],0,'La démarche clinique relie les données à l’analyse, aux objectifs, aux interventions et à l’évaluation.','Intermédiaire');
+  add('Une nouvelle donnée clinique apparaît et modifie la situation. Que doit faire l’infirmier ?',['Réévaluer les priorités et adapter le projet de soins','Conserver systématiquement le plan initial','Attendre la fin du séjour','Ne modifier que la traçabilité'],0,'La démarche clinique est dynamique et doit être réajustée.','Intermédiaire');
+ } else if(/éducation thérapeutique/.test(T)){
+  add('Quelle proposition distingue le mieux l’éducation thérapeutique d’une simple information ?',['Elle part des besoins et représentations de la personne et vise des compétences évaluables','Elle consiste uniquement à donner une brochure','Elle impose les mêmes objectifs à tous','Elle ne nécessite aucune évaluation'],0,'L’ETP construit avec la personne des compétences adaptées à son quotidien.','Intermédiaire');
+  add('Un patient connaît parfaitement son traitement mais oublie régulièrement de le prendre. Quelle démarche est la plus pertinente ?',['Explorer les causes des oublis et construire avec lui une stratégie réaliste','Répéter uniquement la prescription','Le culpabiliser','Augmenter la dose sans prescription'],0,'Comprendre les obstacles permet de construire un objectif éducatif réellement utile.','Difficile');
+ } else if(/question de recherche/.test(T)){
+  add('Quelle caractéristique décrit le mieux une bonne question de recherche ?',['Elle est précise, pertinente, faisable et guide les données à rechercher','Elle doit être la plus générale possible','Elle doit être formulée après avoir choisi la méthode','Elle ne doit pas tenir compte du contexte'],0,'Une question exploitable oriente la recherche documentaire et la méthodologie.','Intermédiaire');
+  add('Quel problème pose une question de recherche trop large ?',['Elle rend la sélection des données et des sources difficile','Elle garantit toujours une meilleure preuve','Elle supprime les biais','Elle facilite automatiquement l’analyse'],0,'Une question trop large produit souvent une littérature difficile à exploiter.','Intermédiaire');
+ } else if(/chimiothérapie/.test(T)){
+  add('Pourquoi la surveillance d’un patient sous chimiothérapie doit-elle être adaptée à la molécule ?',['Parce que les toxicités et les signes d’alerte varient selon le traitement','Parce que toutes les chimiothérapies ont exactement les mêmes effets','Parce qu’aucun traitement ne nécessite de surveillance','Uniquement pour choisir l’horaire des repas'],0,'Les toxicités hématologiques, digestives, cutanées ou infectieuses dépendent notamment des molécules.','Difficile');
+  add('Quel signe chez un patient immunodéprimé sous traitement anticancéreux doit être pris au sérieux ?',['Une fièvre ou une altération rapide de l’état général','Une préférence alimentaire','Une fatigue ancienne inchangée','Une peau sèche isolée'],0,'Une infection peut évoluer rapidement chez une personne immunodéprimée et nécessite une évaluation selon protocole.','Difficile');
+ } else if(/soins palliatifs|approche palliative/.test(T)){
+  add('Quel est l’objectif central d’une démarche palliative ?',['Soulager les souffrances et améliorer la qualité de vie selon le projet de la personne','Arrêter automatiquement tous les traitements','Accélérer le décès','Ne plus réaliser aucun soin'],0,'Les soins palliatifs visent le confort, le soulagement et un projet de soins proportionné.','Intermédiaire');
+  add('Une personne en phase avancée présente une dyspnée importante. Quelle démarche est adaptée ?',['Évaluer le symptôme, mettre en œuvre les mesures prescrites de confort et réévaluer','Imposer une alimentation','Ignorer la plainte si la saturation est correcte','Arrêter tous les traitements sans décision collégiale'],0,'La prise en charge palliative reste active et centrée sur le confort et les objectifs de la personne.','Difficile');
+ }
+
+ // Noyau commun : complète chaque chapitre sans recycler une seule forme de question.
+ add(`Quel est l’objectif principal de révision pour « ${title} » ?`,[d.obj?.[0]||`Comprendre les notions essentielles de ${title}`,`Mémoriser uniquement des mots-clés sans contexte`,`Appliquer la même conduite à tous les patients`,`Attendre une complication avant de surveiller`],0,(d.obj||[]).join(' • '),'Facile');
+ add(`Face à une situation clinique liée à ${T}, quelle démarche est la plus pertinente ?`,[`Recueillir les données utiles, hiérarchiser les priorités puis réévaluer`,`Choisir immédiatement une intervention sans évaluer`,`Se fier uniquement au diagnostic médical`,`Reporter toute décision même en cas d’aggravation`],0,d.meca,'Intermédiaire');
+ add(`Quelle donnée est particulièrement utile pour la surveillance de ${T} ?`,[d.surv,`Une donnée sans rapport avec l’évolution`,`Uniquement la plainte initiale`,`Aucune donnée si le patient semble stable`],0,d.surv,'Intermédiaire');
+ add(`Quelle affirmation est la plus juste concernant ${T} ?`,[`La conduite dépend du contexte clinique et doit être adaptée au patient`,`Une même intervention convient à tous`,`Une valeur isolée suffit toujours à conclure`,`Le diagnostic médical remplace l’observation infirmière`],0,d.intro,'Intermédiaire');
+ add(`Après une intervention en lien avec ${T}, pourquoi faut-il réévaluer ?`,[`Pour vérifier l’efficacité, la tolérance et l’évolution de la situation`,`Pour confirmer automatiquement le diagnostic`,`Pour éviter toute surveillance ultérieure`,`Uniquement pour compléter le dossier`],0,'Le raisonnement infirmier est dynamique : observer, agir, réévaluer et transmettre si nécessaire.','Intermédiaire');
+ add(`Quel piège de partiel faut-il éviter à propos de ${T} ?`,[d.traps,`Choisir la réponse la plus rapide sans analyser la situation`,`Confondre un signe avec une cause certaine`,`Oublier le contexte clinique`],0,d.traps,'Difficile');
+ add(`Quelle transmission est la plus pertinente dans une situation concernant ${T} ?`,[`Décrire les faits observés, les paramètres utiles, les actions réalisées et l’évolution`,`Écrire seulement « patient pas bien »`,`Transmettre uniquement une hypothèse`,`Attendre la fin du poste pour signaler une aggravation`],0,'Une transmission utile repose sur des données objectives, pertinentes et évolutives.','Difficile');
+ add(`Laquelle est la moins adaptée face à une évolution défavorable liée à ${T} ?`,[`Attendre une aggravation supplémentaire avant de transmettre ou d’alerter`,`Réévaluer les paramètres pertinents`,`Identifier le risque prioritaire`,`Transmettre des données cliniques précises`],0,'Une aggravation doit conduire à une réévaluation et à une alerte adaptée, pas à une attente volontaire.','Difficile');
+ add(`Quelle situation montre le mieux un raisonnement infirmier adapté à ${T} ?`,[`Relier les signes au contexte, prioriser, agir dans son champ de compétence puis réévaluer`,`Réciter une définition sans regarder le patient`,`Appliquer une conduite identique quel que soit le contexte`,`Se limiter à documenter sans agir`],0,d.reflex,'Difficile');
+ add(`Quel énoncé correspond le mieux à une surveillance efficace de ${T} ?`,[`Comparer les données à l’état habituel, rechercher une tendance et interpréter l’évolution`,`Mesurer une seule fois puis arrêter la surveillance`,`Multiplier les mesures sans les interpréter`,`Surveiller uniquement si le patient le demande`],0,d.surv,'Intermédiaire');
+ add(`Quel est le meilleur objectif pour un étudiant qui révise ${T} ?`,[`Être capable d’expliquer, reconnaître une situation et justifier une conduite`,`Connaître uniquement la définition`,`Apprendre une liste sans savoir l’appliquer`,`Éviter les cas cliniques`],0,(d.obj||[]).join(' • '),'Facile');
+ add(`Pourquoi une réponse de QCM doit-elle être replacée dans le contexte de ${T} ?`,[`Parce qu’une intervention peut être pertinente dans une situation mais inadaptée dans une autre`,`Parce que les règles changent toujours`,`Parce qu’aucune connaissance théorique n’est utile`,`Parce que seule l’intuition compte`],0,'Le contexte, la gravité, les données disponibles et la priorité clinique déterminent la pertinence d’une réponse.','Difficile');
+
+ // Variété réelle : la bonne réponse n'est plus toujours A.
+ return qs.map((x,index)=>{
+   const shift=[0,1,2,3][index%4];
+   const answers=[...x.a]; const correct=answers.splice(x.c,1)[0]; answers.splice(shift%4,0,correct);
+   const c=answers.indexOf(correct);
+   const why=x.why||answers.map((_,k)=>k===c?`Bonne proposition : elle correspond à la priorité ou au principe attendu. ${x.e}`:`Cette proposition est moins adaptée : elle ne répond pas correctement à la situation évaluée ou oublie un élément important.`);
+   return {...x,a:answers,c,why};
+ });
+}
+function getChapterQuestions(ue,title){
+ const all=buildChapterQCM(ue,title);
+ return shuffle(all).slice(0,5);
+}
+function startFicheQCM(ue,title){
+ const matching=getChapterQuestions(ue,title);
+ if(!matching.length){toast('Les QCM de ce chapitre arrivent bientôt 📚');return;}
+ filtered=matching; resetQuestionOrder(); qi=0; go('qcm');
+ const info=document.getElementById('qMeta');
+ if(info) info.textContent=ue+' • '+title+' • 5 questions ciblées';
+}
+
+function openAssociatedCase(ue,title){
+ const target=document.getElementById('fichePractice');
+ const found=casesData.find(c=>c.ue===ue && (c.title||'').toLowerCase().includes(title.toLowerCase().split(' ')[0])) || casesData.find(c=>c.ue===ue);
+ const key=(ue+'|'+title).toLowerCase();
+ const templates={
+  'ue 2.8|avc':{
+   title:'AVC aigu — reconnaître, prioriser, transmettre',level:'Difficile',
+   steps:[
+    {label:'Situation initiale',s:'Mme L., 72 ans, est retrouvée à 08 h 15 avec une asymétrie faciale, une faiblesse du membre supérieur droit et des difficultés à parler. Elle était autonome la veille. Sa fille indique qu’elle était normale à 07 h 30.',q:'Quelle donnée est prioritaire à préciser immédiatement ?',a:['L’heure de début ou la dernière heure connue normale des symptômes','Son poids habituel','La quantité de liquide bue hier','La date de son dernier bilan sanguin'],c:0,e:'Dans une suspicion d’AVC, l’heure de début des symptômes ou la dernière heure connue normale est une donnée essentielle à transmettre rapidement.'},
+    {label:'Nouvelle donnée',s:'La patiente présente maintenant une parole incompréhensible. TA 178/96 mmHg, FC 88/min, FR 20/min, SpO₂ 96 % à l’air ambiant. Elle ne présente pas de détresse respiratoire.',q:'Quelle attitude est la plus adaptée ?',a:['Alerter rapidement selon la procédure d’urgence et poursuivre l’évaluation sans retarder l’orientation','La faire marcher pour tester son équilibre avant toute alerte','Attendre la visite médicale programmée dans la matinée','Lui donner à boire pour vérifier sa déglutition'],c:0,e:'Les signes neurologiques focaux d’apparition brutale imposent une prise en charge urgente. On ne fait pas boire une personne chez qui un trouble de la déglutition peut exister.'},
+    {label:'Évolution',s:'En attendant l’équipe médicale, la patiente devient somnolente. Sa faiblesse persiste. Une surveillance rapprochée est mise en place.',q:'Quelle transmission est la plus pertinente ?',a:['Décrire l’heure de début/dernière heure normale, les signes neurologiques, leur évolution, les constantes et les actions réalisées','Écrire uniquement « suspicion AVC » sans autres données','Transmettre uniquement la tension artérielle','Attendre la fin de la prise en charge pour documenter la situation'],c:0,e:'Une transmission clinique utile distingue les faits observés, la chronologie, l’évolution, les paramètres, les actions et la réponse du patient.'}
+   ]},
+  'ue 2.5|insuffisance cardiaque':{
+   title:'Insuffisance cardiaque — décompensation',level:'Difficile',
+   steps:[
+    {label:'Situation initiale',s:'M. R., 76 ans, insuffisant cardiaque, signale depuis trois jours une prise de poids de 2,5 kg et une augmentation de son essoufflement. Il dort désormais avec plusieurs oreillers.',q:'Quel élément oriente particulièrement vers une rétention hydrosodée ?',a:['La prise de poids rapide associée à l’augmentation des œdèmes et de la dyspnée','Une diminution isolée de l’appétit','Une douleur ancienne du genou','Une température normale'],c:0,e:'Une prise de poids rapide peut traduire une rétention hydrique dans un contexte d’insuffisance cardiaque.'},
+    {label:'Nouvelle donnée',s:'À l’examen : œdèmes des membres inférieurs, dyspnée au repos, FR 28/min. Le patient est anxieux et dit ne pas pouvoir rester allongé.',q:'Quelle priorité infirmière est la plus adaptée ?',a:['Installer confortablement en position demi-assise, surveiller les paramètres et alerter rapidement selon la gravité','L’allonger complètement à plat','Lui faire marcher quelques minutes pour tester sa tolérance','Limiter toute surveillance pour favoriser son repos'],c:0,e:'La position demi-assise peut améliorer le confort respiratoire. La dyspnée au repos et l’évolution doivent conduire à une évaluation et une alerte rapides.'},
+    {label:'Réévaluation',s:'Après les premières mesures prescrites, la dyspnée diminue mais persiste. La surveillance est poursuivie.',q:'Quels éléments doivent notamment être suivis dans ce contexte ?',a:['État respiratoire, SpO₂, fréquence respiratoire, TA, FC, diurèse, poids et évolution clinique selon prescriptions/protocoles','Uniquement la température','Uniquement la douleur','Seulement la fréquence cardiaque'],c:0,e:'La surveillance doit être adaptée à la situation et rechercher l’évolution de la congestion, de la perfusion et de la tolérance des traitements.'}
+   ]},
+  'ue 2.11|calculs de doses':{
+   title:'Calcul de dose — perfusion',level:'Difficile',
+   steps:[
+    {label:'Prescription',s:'Prescription : administrer 500 mg d’un médicament. Le flacon disponible contient 1 g à reconstituer selon les indications du fabricant et du service.',q:'Quelle est la première étape avant de calculer le volume à prélever ?',a:['Identifier précisément la concentration finale après reconstitution et les unités utilisées','Diviser directement 500 par 1 sans tenir compte de la reconstitution','Préparer la seringue puis vérifier la concentration','Arrondir immédiatement le résultat à l’unité supérieure'],c:0,e:'Le calcul dépend de la concentration réellement obtenue après reconstitution. Il faut donc vérifier le produit, la prescription, les unités et le volume final avant de calculer.'},
+    {label:'Contrôle',s:'Après reconstitution, la concentration obtenue est clairement indiquée sur l’étiquette du flacon. Le calcul est réalisé.',q:'Quelle vérification augmente la sécurité du calcul ?',a:['Comparer le résultat, les unités et la cohérence du volume avec la prescription et le matériel disponible','Ne vérifier que le chiffre final','Demander au patient de valider le calcul','Modifier la prescription si le volume paraît peu pratique'],c:0,e:'Un calcul doit être contrôlé : unités, concentration, volume, cohérence avec la prescription et modalités d’administration.'},
+    {label:'Avant administration',s:'Le médicament est préparé. Le patient est identifié et la prescription est disponible.',q:'Que faut-il encore vérifier avant l’administration ?',a:['Identité, médicament, dose, voie, moment/indication et autres éléments de sécurité applicables','Uniquement le nom du médicament','Uniquement la voie','Rien si le calcul est juste'],c:0,e:'Un calcul exact ne suffit pas : la sécurisation de l’administration repose sur plusieurs vérifications.'}
+   ]}
+ };
+ const data=templates[key] || {
+  title:title+' — cas clinique progressif',level:'Intermédiaire',
+  steps:[
+   {label:'Situation initiale',s:`En stage, tu prends en charge une personne dans une situation en lien avec « ${title} ». Tu recueilles les données disponibles et compares l’état actuel à son état habituel.`,q:'Quelle première démarche est la plus pertinente ?',a:['Recueillir les données pertinentes et identifier les priorités','Choisir immédiatement une intervention sans évaluation','Attendre une aggravation','Se limiter au diagnostic médical'],c:0,e:'Le raisonnement clinique commence par un recueil de données pertinent et une hiérarchisation.'},
+   {label:'Nouvelle donnée',s:`Une nouvelle donnée clinique apparaît et modifie l’évaluation de la situation. La personne présente une évolution qui nécessite une réévaluation.`,q:'Que faut-il faire ?',a:['Réévaluer, prioriser le risque et adapter les interventions dans son champ de compétence','Ignorer la nouvelle donnée','Reporter toute action à la relève','Documenter uniquement à la fin du poste'],c:0,e:'Une évolution clinique doit conduire à une réévaluation et, si nécessaire, à une transmission ou une alerte.'},
+   {label:'Réévaluation',s:`Après l’intervention, l’état de la personne est de nouveau évalué.`,q:'Pourquoi cette étape est-elle indispensable ?',a:['Pour vérifier l’efficacité et la tolérance des interventions et détecter une évolution','Pour confirmer automatiquement le diagnostic initial','Pour éviter toute nouvelle surveillance','Uniquement pour compléter le dossier'],c:0,e:'Le raisonnement infirmier est dynamique : observation, action puis réévaluation.'}
+  ]
+ };
+ window.activeProgressiveCase={...data,ue,title,step:0};
+ renderProgressiveCase();
+ target.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function renderProgressiveCase(){
+ const target=document.getElementById('fichePractice'),c=window.activeProgressiveCase,s=c.steps[c.step];
+ target.innerHTML=`<div class="caseCard"><span class="caseTag">${c.ue} • ${c.level} • Étape ${c.step+1}/${c.steps.length}</span><h3>🏥 ${c.title}</h3><div class="courseBlock"><h4>📋 ${s.label}</h4><p>${s.s}</p></div><div class="question" style="font-size:16px">${s.q}</div><div class="answers">${s.a.map((a,i)=>`<button class="answer" onclick="answerProgressiveCase(${i},this)">${String.fromCharCode(65+i)}. ${a}</button>`).join('')}</div><div id="progressiveExplain" class="explain"></div></div>`;
+}
+function answerProgressiveCase(i,btn){
+ const c=window.activeProgressiveCase,s=c.steps[c.step],box=document.getElementById('progressiveExplain');
+ if(box.classList.contains('show'))return;
+ document.querySelectorAll('#fichePractice .answer').forEach((b,j)=>{b.disabled=true;if(j===s.c)b.classList.add('correct')});
+ if(i!==s.c)btn.classList.add('wrong');
+ const last=c.step===c.steps.length-1;
+ box.innerHTML=`<b>${i===s.c?'✅ Bonne réponse':'❌ À corriger'}</b><p><b>Réponse attendue :</b> ${s.a[s.c]}</p><p>${s.e}</p><div class="courseBlock"><h4>🧠 À retenir</h4><p>${last?'Le cas est terminé : le raisonnement attendu relie les données, la priorité, l’action et la réévaluation.': 'Une nouvelle donnée va maintenant faire évoluer la situation.'}</p></div>${last?'':`<button class="btn" style="margin-top:10px" onclick="window.activeProgressiveCase.step++;renderProgressiveCase()">Nouvelle donnée →</button>`}`;
+ box.classList.add('show');
+}
+
+function answerGeneratedCase(i,btn){
+ const box=document.getElementById('practiceCaseExplain'); if(box.classList.contains('show'))return;
+ document.querySelectorAll('[data-generated-case="1"]').forEach((b,j)=>{b.disabled=true;if(j===0)b.classList.add('correct')});
+ if(i!==0)btn.classList.add('wrong');
+ const d=window.generatedPracticeCase?.d||{};
+ box.innerHTML=`<b>${i===0?'✅ Bonne démarche':'❌ À corriger'}</b><p><b>Réponse attendue :</b> recueillir les données, identifier la priorité, agir dans son champ de compétence, surveiller et réévaluer.</p><p>${d.reflex||''}</p><div class="courseBlock"><h4>🧠 À retenir</h4><p>${d.retain||''}</p></div>`;
+ box.classList.add('show');
+}
+
+function answerPracticeCase(n,i,btn){
+ const x=casesData[n],box=document.getElementById('practiceCaseExplain');
+ if(box.classList.contains('show'))return;
+ document.querySelectorAll('[data-practice-case="1"]').forEach((b,j)=>{b.disabled=true;if(j===x.c)b.classList.add('correct')});
+ if(i!==x.c)btn.classList.add('wrong');
+ box.innerHTML=`<b>${i===x.c?'✅ Bonne analyse':'❌ À corriger'}</b><p><b>Réponse attendue :</b> ${x.a[x.c]}</p><p>${x.e}</p><div class="courseBlock"><h4>🧠 À retenir</h4><p>${x.learn}</p></div>`;
+ box.classList.add('show');
+}
+
+async function signOut(){await sb.auth.signOut();location.reload()}
+async function loadProfile(){
+ if(!session)return;
+ const {data,error}=await sb.from("profiles").select("*").eq("id",session.user.id).single();
+ if(error){showMsg("Profil introuvable : "+error.message);return}
+ profile=data;document.getElementById("userPill").textContent="👤 "+profile.nickname+" • "+profile.xp+" XP";document.getElementById("welcome").textContent="Salut "+profile.nickname+" 👋";
+ document.getElementById("auth").classList.remove("active");document.getElementById("home").classList.add("active");document.getElementById("nav").style.display="grid";renderStats();
+}
+
+async function uploadAvatar(input){
+ const file=input.files?.[0]; if(!file||!session)return;
+ if(file.size>2*1024*1024){document.getElementById("avatarMsg").textContent="Image trop lourde : 2 Mo maximum.";return}
+ if(!/^image\/(png|jpeg|webp)$/.test(file.type)){document.getElementById("avatarMsg").textContent="Format accepté : JPG, PNG ou WebP.";return}
+ const ext=file.name.split(".").pop().toLowerCase(),path=`${session.user.id}/avatar.${ext}`;
+ const up=await sb.storage.from("avatars").upload(path,file,{upsert:true,contentType:file.type});
+ if(up.error){document.getElementById("avatarMsg").textContent=up.error.message;return}
+ const {data}=sb.storage.from("avatars").getPublicUrl(path);
+ await sb.from("profiles").update({avatar_url:data.publicUrl}).eq("id",session.user.id);
+ profile.avatar_url=data.publicUrl; renderProfile(); document.getElementById("avatarMsg").textContent="Photo de profil enregistrée ✅";
+}
+async function loadBadges(){
+ const {data}=await sb.from("user_badges").select("badge_type,week_start,rank").eq("user_id",session.user.id).order("week_start",{ascending:false});
+ const box=document.getElementById("badgeGrid");
+ const icons={or:"🥇",argent:"🥈",bronze:"🥉"};
+ if(!data?.length){box.innerHTML='<div class="listItem" style="grid-column:1/-1;text-align:center">Aucun badge pour le moment. Le premier objectif : entrer dans le Top 30 🏆</div>';return}
+ box.innerHTML=data.map(b=>`<div class="badgeCard"><div class="badgeIcon">${icons[b.badge_type]||"🏅"}</div><b>${b.badge_type[0].toUpperCase()+b.badge_type.slice(1)}</b><small>#${b.rank} • semaine du ${new Date(b.week_start+"T12:00:00").toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})}</small></div>`).join("");
+}
+async function renderProfile(){
+ if(!profile)return;
+ const fy=document.getElementById("ficheYear");if(fy)fy.value=profile.year_level||"2A";
+ document.getElementById("profileName").textContent=profile.nickname;
+ document.getElementById("profileMeta").textContent=`${profile.year_level}${profile.school?" • "+profile.school:""}`;
+ document.getElementById("profileXp").textContent=profile.xp||0;
+ const ptotal=profile.xp||0, plevel=Math.floor(ptotal/100)+1, ppct=ptotal%100;
+ const pln=document.getElementById("profileLevelName");if(pln)pln.textContent=`Niveau ${plevel}`;
+ const plh=document.getElementById("profileLevelHint");if(plh)plh.textContent=ppct?`Encore ${100-ppct} XP pour le niveau ${plevel+1}`:"Nouveau niveau atteint !";
+ const plx=document.getElementById("profileLevelXp");if(plx)plx.textContent=`${ptotal} XP`;
+ const plb=document.getElementById("profileLevelBar");if(plb)plb.style.width=ppct+"%";
+ const av=document.getElementById("avatarPreview");av.src=profile.avatar_url||"data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="#171c26"/><text x="60" y="72" text-anchor="middle" font-size="48">👤</text></svg>`);
+ const {data}=await sb.rpc("weekly_leaderboard");
+ const me=(data||[]).find(x=>x.user_id===session.user.id);
+ document.getElementById("profileWeeklyXp").textContent=me?.weekly_xp||0;
+ document.getElementById("profileRank").textContent=me?`#${me.rank}`:"—";
+ const attempts=await sb.from("attempts").select("id",{count:"exact",head:true}).eq("user_id",session.user.id);
+ document.getElementById("profileDone").textContent=attempts.count||0;
+ await loadBadges();
+}
+
+function go(id){if(!session)return;document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.nav===id));window.scrollTo({top:0,behavior:"smooth"});if(id==="qcm"){if(!catalogQuestions.length)initFilters();else renderQ();}if(id==="cases")renderCases();if(id==="leaderboard")loadLeaderboard();if(id==="fiches")renderFicheCategories();if(id==="profile")renderProfile()}
+async function renderStats(){
+ document.getElementById("xp").textContent=profile?.xp||0;document.getElementById("streak").textContent=profile?.streak||0;
+ const total=profile?.xp||0, level=Math.floor(total/100)+1, pct=total%100;
+ const bar=document.getElementById("homeXpBar"); if(bar)bar.style.width=pct+"%";
+ const hx=document.getElementById("homeXpNext"); if(hx)hx.textContent=total;
+ const {data}=await sb.rpc("weekly_leaderboard");
+ const me=(data||[]).find(x=>x.user_id===session.user.id);
+ const hw=document.getElementById("homeWeeklyXp");if(hw)hw.textContent=me?.weekly_xp||0;
+ const hr=document.getElementById("homeRank");if(hr)hr.textContent=me?`#${me.rank}`:"—";
+ loadAttempts();
+ const {count}=await sb.from("attempts").select("id",{count:"exact",head:true}).eq("user_id",session.user.id).gte("created_at",new Date(Date.now()-24*60*60*1000).toISOString());
+ const done=Math.min(count||0,5); const gc=document.getElementById("dailyGoalCount");if(gc)gc.textContent=`${done}/5`;
+ const gs=document.getElementById("dailyGoalSub");if(gs)gs.textContent=done>=5?"Objectif atteint 🎉 Reviens demain pour garder le rythme.":`Encore ${5-done} question${5-done>1?"s":""} pour atteindre ton objectif.`;
+}
+async function loadAttempts(){
+ const {data}=await sb.from("attempts").select("is_correct").eq("user_id",session.user.id);
+ const n=data?.length||0,g=data?.filter(x=>x.is_correct).length||0;
+ document.getElementById("success").textContent=n?Math.round(g/n*100)+"%":"0%";
+ document.getElementById("errors").textContent=n-g;
+}
+let catalogQuestions=[];
+let activeQcmYear='all';
+let activeQcmUE='all';
+function buildAllCatalogQuestions(){
+  const out=[];
+  Object.entries(ficheCatalog).forEach(([year,cfg])=>{
+    Object.entries(cfg.cats).forEach(([ue,items])=>{
+      items.forEach(([title,description])=>{
+        buildChapterQCM(ue,title,year).forEach(q=>out.push({...q,year,chapter:title,source:'catalog'}));
+      });
+    });
+  });
+  const seen=new Set();
+  catalogQuestions=out.filter(q=>{const key=q.year+'|'+q.ue+'|'+q.chapter+'|'+q.q;if(seen.has(key))return false;seen.add(key);return true;});
+  return catalogQuestions;
+}
+function getQcmBank(){
+  if(!catalogQuestions.length)buildAllCatalogQuestions();
+  return [...questions.map(q=>({...q,year:q.year||'Toutes',chapter:q.chapter||'Question générale',source:'general'})),...catalogQuestions];
+}
+function initFilters(){
+  const bank=getQcmBank();
+  const yearBox=document.getElementById('filters');
+  const years=[...new Set(bank.map(x=>x.year).filter(Boolean))].filter(x=>x!=='Toutes');
+  const labels={all:'Tous les QCM','1A':'1A • Référentiel 2026','2A':'2A • Référentiel 2009','3A':'3A • Référentiel 2009'};
+  yearBox.innerHTML=`<div style="display:flex;gap:8px;min-width:max-content"><button class="chip active" data-qcm-year="all" onclick="setQcmYear('all',this)">${labels.all}</button>${years.map(y=>`<button class="chip" data-qcm-year="${y}" onclick="setQcmYear('${y}',this)">${labels[y]||y}</button>`).join('')}</div><div id="qcmUEFilters" style="display:flex;gap:8px;overflow:auto;padding-top:7px;min-width:max-content"></div>`;
+  renderQcmUEFilters(bank);
+  applyQcmFilters(false);
+}
+function renderQcmUEFilters(bank){
+  const box=document.getElementById('qcmUEFilters');if(!box)return;
+  const scoped=activeQcmYear==='all'?bank:bank.filter(x=>x.year===activeQcmYear||x.year==='Toutes');
+  const ues=[...new Set(scoped.map(x=>x.ue))];
+  box.innerHTML=`<button class="chip ${activeQcmUE==='all'?'active':''}" onclick="setQcmUE('all',this)">Toutes les UE</button>`+ues.map(ue=>`<button class="chip ${activeQcmUE===ue?'active':''}" onclick="setQcmUE(${JSON.stringify(ue)},this)">${ue}</button>`).join('');
+}
+function setQcmYear(year,el){
+  activeQcmYear=year;activeQcmUE='all';
+  document.querySelectorAll('[data-qcm-year]').forEach(x=>x.classList.toggle('active',x===el));
+  renderQcmUEFilters(getQcmBank());applyQcmFilters(true);
+}
+function setQcmUE(ue,el){
+  activeQcmUE=ue;document.querySelectorAll('#qcmUEFilters .chip').forEach(x=>x.classList.remove('active'));el.classList.add('active');applyQcmFilters(true);
+}
+function applyQcmFilters(render=true){
+  const bank=getQcmBank();
+  filtered=bank.filter(x=>(activeQcmYear==='all'||x.year===activeQcmYear||x.year==='Toutes')&&(activeQcmUE==='all'||x.ue===activeQcmUE));
+  resetQuestionOrder();
+  const meta=document.getElementById('qMeta');
+  if(meta&&!filtered.length)meta.textContent='Aucun QCM pour ce filtre';
+  if(render)renderQ();
+}
+function setFilter(ue,el){setQcmUE(ue,el)}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+let currentChoices=[];let questionOrder=[];function resetQuestionOrder(){questionOrder=shuffle([...Array(filtered.length).keys()]);qi=0;}
+function renderQ(){
+ if(!filtered.length)return;if(!questionOrder.length||qi>=questionOrder.length)resetQuestionOrder();const x=filtered[questionOrder[qi]];answered=false;
+ document.getElementById('qMeta').textContent=x.ue+' • Question '+(qi+1)+'/'+filtered.length;
+ document.getElementById('qDifficulty').textContent=x.difficulty||'Intermédiaire';
+ const qpb=document.getElementById('qProgressBar');if(qpb)qpb.style.width=((qi+1)/filtered.length*100)+"%";
+ document.getElementById('qText').textContent=x.q;document.getElementById('explain').classList.remove('show');document.getElementById('nextQ').style.display='none';
+ currentChoices=shuffle(x.a.map((text,originalIndex)=>({text,originalIndex})));
+ const box=document.getElementById('answers');box.innerHTML='';
+ currentChoices.forEach((choice,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=String.fromCharCode(65+i)+'. '+choice.text;b.onclick=()=>answer(i,b);box.appendChild(b)});
+}
+async function answer(i,btn){
+ if(answered)return;answered=true;const x=filtered[questionOrder[qi]];const selected=currentChoices[i].originalIndex;const correct=selected===x.c;const gain=correct?10:3;
+ document.querySelectorAll('#answers .answer').forEach((b,j)=>{b.disabled=true;if(currentChoices[j].originalIndex===x.c)b.classList.add('correct')});if(!correct)btn.classList.add('wrong');
+ let html=`<div style="font-weight:900;font-size:15px;margin-bottom:10px">${correct?'✅ Bonne réponse':'❌ À corriger'}</div><div><b>Réponse choisie :</b> ${x.a[selected]}</div>`;
+ if(!correct)html+=`<div style="margin-top:10px"><b>Réponse attendue :</b> ${x.a[x.c]}</div>`;
+ const why=(x.why&&x.why.length===x.a.length)?x.why:x.a.map((ans,k)=>k===x.c?`Bonne proposition : elle correspond à la priorité attendue dans cette situation. ${x.e}`:`Cette proposition est moins adaptée : elle ne répond pas à la priorité clinique évaluée. Pour l'examen, demande-toi si elle intervient trop tôt, trop tard, oublie une surveillance ou sort du rôle infirmier.`);
+ html+=`<div class="courseBlock" style="margin-top:14px"><h4>🔎 Analyse des 4 propositions</h4>${x.a.map((ans,k)=>`<div style="padding:10px 0;border-top:1px solid #252c38"><b>${String.fromCharCode(65+k)}. ${ans}</b><div style="margin-top:4px;color:${k===x.c?'#7ef0d0':'#b6becb'}">${k===x.c?'✅ ': '↳ '}${why[k]}</div></div>`).join('')}</div>`;
+ html+=`<div style="margin-top:10px"><b>🧠 À retenir :</b> ${x.e}</div>`;
+ document.getElementById('explain').innerHTML=html;document.getElementById('explain').classList.add('show');document.getElementById('nextQ').style.display='inline-block';
+ const qid=await ensureQuestion(x);if(qid)await sb.from('attempts').insert({user_id:session.user.id,question_id:qid,selected_option_ids:[],is_correct:correct,xp_earned:gain});
+ const {data:xpData,error:xpError}=await sb.rpc('add_xp',{p_gain:gain});if(!xpError&&xpData?.[0]){profile.xp=xpData[0].new_total_xp;document.getElementById('userPill').textContent='👤 '+profile.nickname+' • '+profile.xp+' XP';renderStats();toast((correct?'✅':'💡')+' '+(correct?'+10':'+3')+' XP • classement mis à jour')}else toast('Réponse enregistrée, mais l’XP n’a pas pu être synchronisée');
+}
+async function ensureQuestion(x){
+ let {data}=await sb.from("questions").select("id").eq("title",x.q).maybeSingle();
+ if(data)return data.id;
+ const ins=await sb.from("questions").insert({title:x.q,type:"single",ue:x.ue,explanation:x.e}).select("id").single();
+ return ins.data?.id;
+}
+function nextQuestion(){qi++;if(qi>=filtered.length)resetQuestionOrder();renderQ()}
+async function caseAnswer(btn,ok){document.querySelectorAll("#cases .answer").forEach(x=>x.disabled=true);btn.classList.add(ok?"correct":"wrong");document.getElementById("caseExplain").classList.add("show");const gain=ok?10:3;const x={q:"Cas détresse respiratoire",ue:"Cas clinique",e:"Priorité à l'évaluation et à la prise en charge de la détresse respiratoire."};const qid=await ensureQuestion(x);if(qid)await sb.from("attempts").insert({user_id:session.user.id,question_id:qid,selected_option_ids:[],is_correct:ok,xp_earned:gain});const {data,error}=await sb.rpc("add_xp",{p_gain:gain});if(!error&&data?.[0]){profile.xp=data[0].new_total_xp;document.getElementById("userPill").textContent=profile.nickname+" • "+profile.xp+" XP";renderStats();toast((ok?"✅":"💡")+" +"+gain+" XP • classement mis à jour")}else toast("Réponse enregistrée, mais l'XP n'a pas pu être synchronisée")}
+async function updateXp(gain){return sb.rpc("add_xp",{p_gain:gain})}
+async function loadLeaderboard(){
+ const box=document.getElementById("leaderList"), podium=document.getElementById("leaderPodium");
+ box.innerHTML="<div class='listItem'>Chargement…</div>"; if(podium)podium.innerHTML="";
+ const {data,error}=await sb.rpc("weekly_leaderboard");
+ if(error){box.innerHTML="<div class='listItem'>Erreur de chargement du classement hebdomadaire.</div>";return}
+ if(!data?.length){box.innerHTML="<div class='listItem'>Aucun XP cette semaine. Sois le premier à prendre la tête 🚀</div>";return}
+ const badgeInfo={or:["🥇","Badge Or"],argent:["🥈","Badge Argent"],bronze:["🥉","Badge Bronze"]};
+ const top=data.slice(0,3), order=[1,0,2];
+ if(podium){
+   podium.innerHTML='<div class="podium">'+order.map(idx=>{
+     const p=top[idx]; if(!p)return '<div></div>';
+     const avatar=p.avatar_url||'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="#eef2f7"/><text x="40" y="50" text-anchor="middle" font-size="30">👤</text></svg>`);
+     return `<div class="podiumCard ${p.rank===1?'first':''}"><img class="podiumAvatar" src="${avatar}" alt=""><div class="podiumRank">${p.rank===1?'🥇':p.rank===2?'🥈':'🥉'}</div><div class="podiumName">${escapeHtml(p.nickname)}</div><div class="podiumXp">${p.weekly_xp} XP</div></div>`;
+   }).join("")+'</div>';
+ }
+ box.innerHTML=data.map(p=>{
+   const b=badgeInfo[p.badge]||["",""];
+   const avatar=p.avatar_url||'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="#eef2f7"/><text x="40" y="50" text-anchor="middle" font-size="30">👤</text></svg>`);
+   return `<div class="rank ${p.user_id===session.user.id?"me":""}"><b>#${p.rank}</b><img class="leaderAvatar" src="${avatar}" alt=""><div class="rname"><strong>${escapeHtml(p.nickname)}</strong><br><small>${p.year_level}${b[0]?" • "+b[0]+" "+b[1]:""}</small></div><div class="rxp">${p.weekly_xp} XP</div></div>`;
+ }).join("");
+ await saveCurrentBadge();
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function toast(t){const e=document.getElementById("toast");e.textContent=t;e.style.display="block";clearTimeout(window.tt);window.tt=setTimeout(()=>e.style.display="none",1800)}
+sb.auth.onAuthStateChange(async(_e,s)=>{session=s;if(s)await loadProfile()});
+(async()=>{const r=await sb.auth.getSession();session=r.data.session;if(session){await loadProfile()}else{document.getElementById("auth").classList.add("active");document.getElementById("nav").style.display="none"}initFilters();if(document.getElementById("ficheYear"))document.getElementById("ficheYear").value=profile?.year_level||"2A";renderFicheCategories();renderCases()})();
+</script>
+</body></html>
